@@ -1,0 +1,33 @@
+{
+  "name": "global-explorer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=23.6.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --force",
+    "check": "node scripts/check-i18n.mjs && node scripts/check-css.mjs",
+    "data:atlas": "node scripts/build-atlas.mjs",
+    "sitemap": "node scripts/build-sitemap.mjs --",
+    "test": "node --test",
+    "lint": "node -e \"console.log('lint placeholder: ESLint arrives in W12')\""
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.1"
+  }
+}

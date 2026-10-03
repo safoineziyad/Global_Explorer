@@ -1,0 +1,40 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# generated config (tsc previously emitted these into the repo root)
+vite.config.js
+vite.config.d.ts
+
+# env files (never commit real secrets; keep the template)
+.env
+.env.*
+!.env.example
+
+# test / coverage / e2e artifacts
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+e2e/.cache/
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json

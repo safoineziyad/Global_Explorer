@@ -1,0 +1,17 @@
+# Apache configuration for the Global Explorer SPA.
+# Requires mod_rewrite and AllowOverride FileInfo (or All) on the document root.
+# Full per-host guide: docs/DEPLOY.md
+
+# --- SPA deep-link fallback ------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Serve real files and directories (assets, data, robots.txt, ...) as-is.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Deep links (/country/DEU, /landmark/x, /privacy, ...) render the app shell.
+  RewriteRule . /index.html [L]
+</IfModule>

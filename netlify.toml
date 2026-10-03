@@ -1,0 +1,17 @@
+# Netlify configuration for Global Explorer (Vite + React Router SPA).
+# Full per-host guide: docs/DEPLOY.md
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+# SPA deep-link fallback: a path that is not a real file is served the app
+# shell with HTTP 200 so react-router resolves /country/DEU, /landmark/x,
+# /privacy, ... on the client instead of the host returning a hard 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

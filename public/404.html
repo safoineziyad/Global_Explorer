@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Global Explorer</title>
+    <!--
+      SPA fallback for static hosts that serve 404.html for unknown paths
+      (e.g. GitHub Pages). Hosts configured with netlify.toml, vercel.json,
+      _redirects, .htaccess or staticwebapp.config.json answer deep links from
+      the app shell directly, so this file is never reached there.
+
+      W2 may overwrite dist/404.html with dist/index.html at build time so the
+      exact app shell boots with the original path still in the address bar.
+      Until then this lightweight page returns visitors to the app.
+    -->
+    <meta http-equiv="refresh" content="0; url=/" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #242424;
+        color: rgba(255, 255, 255, 0.87);
+        font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+      }
+      a {
+        color: #8ab4f8;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Global Explorer</h1>
+      <p>Taking you to the map&hellip; <a href="/">Continue</a></p>
+    </main>
+  </body>
+</html>

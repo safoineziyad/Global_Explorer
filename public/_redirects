@@ -1,0 +1,3 @@
+# Cloudflare Pages SPA fallback (also honoured by Netlify).
+# Any path without a matching static file serves the app shell with HTTP 200.
+/*    /index.html   200

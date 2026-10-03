@@ -1,6 +1,14 @@
 # Apache configuration for the Global Explorer SPA.
-# Requires mod_rewrite and AllowOverride FileInfo (or All) on the document root.
-# Full per-host guide: docs/DEPLOY.md
+# Requires mod_rewrite, mod_headers and mod_deflate, with AllowOverride
+# FileInfo (or All) on the document root. Full guide: docs/DEPLOY.md
+
+# --- Force HTTPS (the host must terminate TLS) -----------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
 
 # --- SPA deep-link fallback ------------------------------------------------
 <IfModule mod_rewrite.c>
@@ -14,4 +22,24 @@
 
   # Deep links (/country/DEU, /landmark/x, /privacy, ...) render the app shell.
   RewriteRule . /index.html [L]
+</IfModule>
+
+# --- Security + privacy hardening -----------------------------------------
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://flagcdn.com; font-src 'self'; connect-src 'self' https://restcountries.com; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests"
+  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(self), camera=(), microphone=(), payment=(), usb=()"
+
+  # Vite emits content-hashed files under /assets, so they are immutable.
+  <FilesMatch "\.(js|mjs|css|woff2?|ttf|otf|eot|png|jpe?g|gif|svg|webp|avif|ico)$">
+    Header always set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+# --- Compression -----------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml text/javascript application/javascript application/json application/xml image/svg+xml
 </IfModule>

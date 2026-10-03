@@ -1,15 +1,8 @@
 // English translations for Global Explorer.
-// Key tree must stay identical to the other locale files (379 keys).
+// Key tree must stay identical to the other locale files (220 keys).
 const en = {
   "app": {
-    "name": "Global Explorer",
-    "tagline": "Explore the world",
-    "description": "Interactive atlas of countries, landmarks and nature",
-    "loading": "Loading the app...",
-    "ready": "Ready",
-    "offline": "You are offline",
-    "online": "Back online",
-    "install": "Install app"
+    "name": "Global Explorer"
   },
   "common": {
     "title": "Title",
@@ -74,40 +67,8 @@ const en = {
     "globe": "Globe"
   },
   "nav": {
-    "world": "World",
     "globe": "Globe",
-    "map": "Map",
-    "countries": "Countries",
-    "landmarks": "Landmarks",
-    "nature": "Nature",
-    "about": "About",
-    "search": "Search",
-    "filters": "Filters",
-    "language": "Language",
-    "theme": "Theme",
-    "menu": "Menu"
-  },
-  "actions": {
-    "explore": "Explore",
-    "view": "View",
-    "open": "Open",
-    "close": "Close",
-    "share": "Share",
-    "copyLink": "Copy link",
-    "save": "Save",
-    "reset": "Reset",
-    "retry": "Retry",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "back": "Back",
-    "next": "Next",
-    "previous": "Previous",
-    "zoomIn": "Zoom in",
-    "zoomOut": "Zoom out",
-    "rotateLeft": "Rotate left",
-    "rotateRight": "Rotate right",
-    "toggleNames": "Toggle names",
-    "toggleAutoSpin": "Toggle auto spin"
+    "map": "Map"
   },
   "globe": {
     "title": "Globe",
@@ -130,20 +91,6 @@ const en = {
     "zoomHint": "Scroll or pinch to zoom",
     "resetView": "Reset view",
     "loading": "Loading globe..."
-  },
-  "map": {
-    "title": "World map",
-    "hint": "Click a country",
-    "hintClick": "Click a country for details",
-    "hintZoom": "Scroll to zoom",
-    "hintPan": "Drag to pan",
-    "zoomIn": "Zoom in",
-    "zoomOut": "Zoom out",
-    "reset": "Reset",
-    "showLabels": "Show labels",
-    "hideLabels": "Hide labels",
-    "projection": "Robinson projection",
-    "fit": "Fit to screen"
   },
   "world": {
     "title": "Global Explorer",
@@ -199,40 +146,6 @@ const en = {
     "photos": "Photos",
     "noData": "No data available"
   },
-  "search": {
-    "title": "Search",
-    "placeholder": "Search countries, landmarks, nature...",
-    "button": "Search",
-    "results": "Results",
-    "noResults": "No results",
-    "resultsFor": "Results for {query}",
-    "clear": "Clear",
-    "clearAll": "Clear all",
-    "recent": "Recent searches",
-    "popular": "Popular",
-    "suggestions": "Suggestions",
-    "searchBy": "Search by",
-    "searchCountry": "Search a country",
-    "searchLandmark": "Search a landmark",
-    "searchNature": "Search nature"
-  },
-  "filters": {
-    "title": "Filters",
-    "region": "Region",
-    "subregion": "Subregion",
-    "population": "Population",
-    "area": "Area",
-    "language": "Language",
-    "currency": "Currency",
-    "sortBy": "Sort by",
-    "sortAsc": "Ascending",
-    "sortDesc": "Descending",
-    "apply": "Apply",
-    "clear": "Clear",
-    "active": "Active filters",
-    "noActive": "No active filters",
-    "allRegions": "All regions"
-  },
   "language": {
     "title": "Language",
     "english": "English",
@@ -244,16 +157,6 @@ const en = {
     "rtlNotice": "Arabic is displayed right to left",
     "translated": "Translated",
     "notTranslated": "Not translated"
-  },
-  "theme": {
-    "title": "Theme",
-    "light": "Light",
-    "dark": "Dark",
-    "system": "System",
-    "toggle": "Toggle theme",
-    "current": "Current theme",
-    "change": "Change theme",
-    "contrast": "High contrast"
   },
   "landmark": {
     "title": "Landmark",
@@ -299,6 +202,10 @@ const en = {
     "nearby": "Nearby",
     "noData": "No data available"
   },
+  "maintenance": {
+    "title": "Under maintenance",
+    "message": "We are doing a quick bit of maintenance. Please check back shortly."
+  },
   "errors": {
     "generic": "Something went wrong",
     "network": "Network error",
@@ -318,39 +225,7 @@ const en = {
   },
   "a11y": {
     "skipToContent": "Skip to content",
-    "mainNavigation": "Main navigation",
-    "toggleNames": "Toggle country names",
-    "toggleAutoSpin": "Toggle automatic rotation",
-    "zoomIn": "Zoom in",
-    "zoomOut": "Zoom out",
-    "resetView": "Reset view",
-    "openCountry": "Open country details",
-    "closeDialog": "Close dialog",
-    "countryDetails": "Country details",
-    "searchInput": "Search input",
-    "filterControls": "Filter controls",
-    "languageSelect": "Language selection",
-    "themeToggle": "Theme toggle",
-    "loading": "Loading",
-    "error": "Error",
-    "map": "Map",
-    "globe": "Globe",
-    "landmark": "Landmark",
-    "nature": "Nature"
-  },
-  "meta": {
-    "siteName": "Global Explorer",
-    "siteDescription": "Explore countries, landmarks and nature around the globe",
-    "keywords": "countries, atlas, globe, landmarks, nature",
-    "ogTitle": "Global Explorer - Interactive World Atlas",
-    "ogDescription": "Discover the world with an interactive globe and map",
-    "twitterCard": "summary_large_image",
-    "canonical": "Canonical URL",
-    "author": "Author",
-    "locale": "en, fr, ar",
-    "robots": "index, follow",
-    "sitemap": "Sitemap",
-    "rss": "RSS feed"
+    "toggleNames": "Toggle country names"
   },
   "footer": {
     "about": "About",
@@ -363,56 +238,6 @@ const en = {
     "builtWith": "Built with",
     "allRightsReserved": "All rights reserved",
     "backToTop": "Back to top"
-  },
-  "units": {
-    "km": "km",
-    "km2": "km²",
-    "mi": "mi",
-    "mi2": "mi²",
-    "m": "m",
-    "ft": "ft",
-    "celsius": "°C",
-    "fahrenheit": "°F",
-    "percent": "%",
-    "people": "people",
-    "years": "years",
-    "perKm2": "per km²"
-  },
-  "about": {
-    "title": "About",
-    "subtitle": "About Global Explorer",
-    "mission": "Our mission",
-    "description": "An interactive atlas to explore the world",
-    "dataSources": "Data sources",
-    "restCountries": "REST Countries",
-    "naturalEarth": "Natural Earth",
-    "openSource": "Open source",
-    "credits": "Credits",
-    "contribute": "Contribute",
-    "reportIssue": "Report an issue",
-    "license": "License",
-    "privacy": "Privacy",
-    "contact": "Contact",
-    "version": "Version",
-    "changelog": "Changelog",
-    "roadmap": "Roadmap",
-    "faq": "FAQ",
-    "support": "Support",
-    "thankYou": "Thank you"
-  },
-  "time": {
-    "justNow": "Just now",
-    "minutesAgo": "{count} minutes ago",
-    "hoursAgo": "{count} hours ago",
-    "daysAgo": "{count} days ago",
-    "weeksAgo": "{count} weeks ago",
-    "monthsAgo": "{count} months ago",
-    "yearsAgo": "{count} years ago",
-    "yesterday": "Yesterday",
-    "today": "Today",
-    "tomorrow": "Tomorrow",
-    "updated": "Updated",
-    "lastUpdated": "Last updated"
   },
   "pwa": {
     "offlineReady": "App ready to work offline",

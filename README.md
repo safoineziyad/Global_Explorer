@@ -7,17 +7,22 @@ everything is hand-rolled with the browser platform.
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 23.6 or newer (the tests import TypeScript modules using Node's
+  built-in type stripping; `.nvmrc` selects Node 24)
 - npm
 
 ## Getting started
 
 ```bash
-npm install
+npm ci
 npm run dev      # http://localhost:3000
 npm run build    # tsc -b && vite build
 npm run check    # i18n key parity + CSS quality gate
+npm test         # Node's built-in test runner
 ```
+
+`npm run lint` is currently a placeholder; ESLint and Prettier are not yet
+configured.
 
 ## Atlas
 
@@ -183,7 +188,7 @@ contains absolute URLs.
 
 ## i18n
 
-`src/i18n/{en,fr,ar}.ts` each hold **379 keys** with identical key sets;
+`src/i18n/{en,fr,ar}.ts` each hold **220 keys** with identical key sets;
 `scripts/check-i18n.mjs` fails if they drift. Arabic is fully RTL
 (`document.documentElement.dir === "rtl"`), with mirrored controls and every
 `globe.*` string translated.
@@ -250,7 +255,7 @@ REGIONAL → GLOBAL → TODAY).
 - State is held in `src/state/explorer.tsx` (`ExplorerProvider` / `useExplorer`)
   with `localStorage` persistence.
 - New feature strings live in `src/i18n/features.ts` (en/fr/ar). They are kept
-  deliberately separate from the three 379-key locale files so
+  deliberately separate from the three locale files so
   `scripts/check-i18n.mjs` is unaffected.
 
 Geolocation is optional: it uses the browser Geolocation API when permission is
@@ -284,9 +289,9 @@ names. This is documented rather than silently shipped. Other known gaps:
 | `npm run data:atlas` | Regenerate `public/data/countries-110m.json`                  |
 | `npm run sitemap`    | Regenerate `public/sitemap.xml` + `public/robots.txt`         |
 | `npm run check`      | Run i18n and CSS checks                                       |
-| `npm test`           | Run the zero-dependency test suite (`node --test tests`)      |
+| `npm test`           | Run the zero-dependency test suite (`node --test`)            |
 
-The test suite is zero-dependency: `npm test` runs `node --test tests` using
+The test suite is zero-dependency: `npm test` runs `node --test` using
 Node's built-in test runner, covering atlas/country data integrity, the Robinson
 projection, the nearby-radius bound, explorer-mode radii and the sitemap.
 

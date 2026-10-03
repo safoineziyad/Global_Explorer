@@ -19,6 +19,7 @@ Status values: `LOCKED` | `RELEASED`.
 | `public/data/countries.json`, `scripts/build-*.mjs`, `src/data/countries.ts` | W11 | RELEASED | — | — | |
 | `tests/**`, `.github/**`, `e2e/**` | W12 | RELEASED | — | — | |
 | `src/components/Button.tsx`, `Toggle.tsx`, `src/components/ui/*` | W10 | RELEASED | — | — | |
+| `src/i18n/*`, `src/components/Button.tsx`, `src/components/Toggle.tsx`, `scripts/check-i18n.mjs`, `README.md` | W10 | RELEASED | 2026-10-03 | 2026-10-03 | W10 owned-file changes validated; REQ-5/REQ-6 pending owners |
 
 > P0 historically held a global lock on `vite.config.ts`, `tsconfig*.json`,
 > `package.json`; those are released to W2 / W12 as of the P0 commit.

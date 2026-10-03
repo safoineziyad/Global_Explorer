@@ -1,15 +1,8 @@
 // French translations for Global Explorer.
-// Key tree must stay identical to the other locale files (379 keys).
+// Key tree must stay identical to the other locale files (220 keys).
 const fr = {
   "app": {
-    "name": "Global Explorer",
-    "tagline": "Explorez le monde",
-    "description": "Atlas interactif des pays, monuments et sites naturels",
-    "loading": "Chargement de l’application...",
-    "ready": "Prêt",
-    "offline": "Vous êtes hors ligne",
-    "online": "De nouveau en ligne",
-    "install": "Installer l’application"
+    "name": "Global Explorer"
   },
   "common": {
     "title": "Titre",
@@ -74,40 +67,8 @@ const fr = {
     "globe": "Globe"
   },
   "nav": {
-    "world": "Monde",
     "globe": "Globe",
-    "map": "Carte",
-    "countries": "Pays",
-    "landmarks": "Monuments",
-    "nature": "Nature",
-    "about": "À propos",
-    "search": "Recherche",
-    "filters": "Filtres",
-    "language": "Langue",
-    "theme": "Thème",
-    "menu": "Menu"
-  },
-  "actions": {
-    "explore": "Explorer",
-    "view": "Afficher",
-    "open": "Ouvrir",
-    "close": "Fermer",
-    "share": "Partager",
-    "copyLink": "Copier le lien",
-    "save": "Enregistrer",
-    "reset": "Réinitialiser",
-    "retry": "Réessayer",
-    "cancel": "Annuler",
-    "confirm": "Confirmer",
-    "back": "Retour",
-    "next": "Suivant",
-    "previous": "Précédent",
-    "zoomIn": "Zoom avant",
-    "zoomOut": "Zoom arrière",
-    "rotateLeft": "Pivoter à gauche",
-    "rotateRight": "Pivoter à droite",
-    "toggleNames": "Afficher les noms",
-    "toggleAutoSpin": "Rotation automatique"
+    "map": "Carte"
   },
   "globe": {
     "title": "Globe",
@@ -130,20 +91,6 @@ const fr = {
     "zoomHint": "Faites défiler ou pincez pour zoomer",
     "resetView": "Réinitialiser la vue",
     "loading": "Chargement du globe..."
-  },
-  "map": {
-    "title": "Carte du monde",
-    "hint": "Cliquez sur un pays",
-    "hintClick": "Cliquez sur un pays pour plus de détails",
-    "hintZoom": "Faites défiler pour zoomer",
-    "hintPan": "Faites glisser pour déplacer",
-    "zoomIn": "Zoom avant",
-    "zoomOut": "Zoom arrière",
-    "reset": "Réinitialiser",
-    "showLabels": "Afficher les étiquettes",
-    "hideLabels": "Masquer les étiquettes",
-    "projection": "Projection Robinson",
-    "fit": "Ajuster à l’écran"
   },
   "world": {
     "title": "Global Explorer",
@@ -199,40 +146,6 @@ const fr = {
     "photos": "Photos",
     "noData": "Aucune donnée disponible"
   },
-  "search": {
-    "title": "Recherche",
-    "placeholder": "Rechercher pays, monuments, nature...",
-    "button": "Rechercher",
-    "results": "Résultats",
-    "noResults": "Aucun résultat",
-    "resultsFor": "Résultats pour {query}",
-    "clear": "Effacer",
-    "clearAll": "Tout effacer",
-    "recent": "Recherches récentes",
-    "popular": "Populaire",
-    "suggestions": "Suggestions",
-    "searchBy": "Rechercher par",
-    "searchCountry": "Rechercher un pays",
-    "searchLandmark": "Rechercher un monument",
-    "searchNature": "Rechercher la nature"
-  },
-  "filters": {
-    "title": "Filtres",
-    "region": "Région",
-    "subregion": "Sous-région",
-    "population": "Population",
-    "area": "Superficie",
-    "language": "Langue",
-    "currency": "Monnaie",
-    "sortBy": "Trier par",
-    "sortAsc": "Croissant",
-    "sortDesc": "Décroissant",
-    "apply": "Appliquer",
-    "clear": "Effacer",
-    "active": "Filtres actifs",
-    "noActive": "Aucun filtre actif",
-    "allRegions": "Toutes les régions"
-  },
   "language": {
     "title": "Langue",
     "english": "Anglais",
@@ -244,16 +157,6 @@ const fr = {
     "rtlNotice": "L’arabe s’affiche de droite à gauche",
     "translated": "Traduit",
     "notTranslated": "Non traduit"
-  },
-  "theme": {
-    "title": "Thème",
-    "light": "Clair",
-    "dark": "Sombre",
-    "system": "Système",
-    "toggle": "Changer de thème",
-    "current": "Thème actuel",
-    "change": "Changer de thème",
-    "contrast": "Contraste élevé"
   },
   "landmark": {
     "title": "Monument",
@@ -299,6 +202,10 @@ const fr = {
     "nearby": "À proximité",
     "noData": "Aucune donnée disponible"
   },
+  "maintenance": {
+    "title": "Maintenance en cours",
+    "message": "Nous effectuons une courte opération de maintenance. Veuillez revenir bientôt."
+  },
   "errors": {
     "generic": "Une erreur est survenue",
     "network": "Erreur réseau",
@@ -318,39 +225,7 @@ const fr = {
   },
   "a11y": {
     "skipToContent": "Aller au contenu",
-    "mainNavigation": "Navigation principale",
-    "toggleNames": "Afficher les noms des pays",
-    "toggleAutoSpin": "Activer la rotation automatique",
-    "zoomIn": "Zoom avant",
-    "zoomOut": "Zoom arrière",
-    "resetView": "Réinitialiser la vue",
-    "openCountry": "Ouvrir les détails du pays",
-    "closeDialog": "Fermer la boîte de dialogue",
-    "countryDetails": "Détails du pays",
-    "searchInput": "Champ de recherche",
-    "filterControls": "Contrôles de filtre",
-    "languageSelect": "Sélection de la langue",
-    "themeToggle": "Bascule de thème",
-    "loading": "Chargement",
-    "error": "Erreur",
-    "map": "Carte",
-    "globe": "Globe",
-    "landmark": "Monument",
-    "nature": "Nature"
-  },
-  "meta": {
-    "siteName": "Global Explorer",
-    "siteDescription": "Explorez les pays, monuments et sites naturels du monde",
-    "keywords": "pays, atlas, globe, monuments, nature",
-    "ogTitle": "Global Explorer - Atlas mondial interactif",
-    "ogDescription": "Découvrez le monde avec un globe et une carte interactifs",
-    "twitterCard": "summary_large_image",
-    "canonical": "URL canonique",
-    "author": "Auteur",
-    "locale": "en, fr, ar",
-    "robots": "index, follow",
-    "sitemap": "Plan du site",
-    "rss": "Flux RSS"
+    "toggleNames": "Afficher les noms des pays"
   },
   "footer": {
     "about": "À propos",
@@ -363,56 +238,6 @@ const fr = {
     "builtWith": "Conçu avec",
     "allRightsReserved": "Tous droits réservés",
     "backToTop": "Retour en haut"
-  },
-  "units": {
-    "km": "km",
-    "km2": "km²",
-    "mi": "mi",
-    "mi2": "mi²",
-    "m": "m",
-    "ft": "ft",
-    "celsius": "°C",
-    "fahrenheit": "°F",
-    "percent": "%",
-    "people": "habitants",
-    "years": "ans",
-    "perKm2": "par km²"
-  },
-  "about": {
-    "title": "À propos",
-    "subtitle": "À propos de Global Explorer",
-    "mission": "Notre mission",
-    "description": "Un atlas interactif pour explorer le monde",
-    "dataSources": "Sources des données",
-    "restCountries": "REST Countries",
-    "naturalEarth": "Natural Earth",
-    "openSource": "Open source",
-    "credits": "Crédits",
-    "contribute": "Contribuer",
-    "reportIssue": "Signaler un problème",
-    "license": "Licence",
-    "privacy": "Confidentialité",
-    "contact": "Contact",
-    "version": "Version",
-    "changelog": "Journal des modifications",
-    "roadmap": "Feuille de route",
-    "faq": "FAQ",
-    "support": "Assistance",
-    "thankYou": "Merci"
-  },
-  "time": {
-    "justNow": "À l’instant",
-    "minutesAgo": "il y a {count} minutes",
-    "hoursAgo": "il y a {count} heures",
-    "daysAgo": "il y a {count} jours",
-    "weeksAgo": "il y a {count} semaines",
-    "monthsAgo": "il y a {count} mois",
-    "yearsAgo": "il y a {count} ans",
-    "yesterday": "Hier",
-    "today": "Aujourd’hui",
-    "tomorrow": "Demain",
-    "updated": "Mis à jour",
-    "lastUpdated": "Dernière mise à jour"
   },
   "pwa": {
     "offlineReady": "Application prête hors ligne",

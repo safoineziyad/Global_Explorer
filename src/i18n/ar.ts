@@ -1,15 +1,8 @@
 // Arabic translations for Global Explorer.
-// Key tree must stay identical to the other locale files (379 keys).
+// Key tree must stay identical to the other locale files (220 keys).
 const ar = {
   "app": {
-    "name": "المستكشف العالمي",
-    "tagline": "استكشف العالم",
-    "description": "أطلس تفاعلي للبلدان والمعالم والطبيعة",
-    "loading": "جارٍ تحميل التطبيق...",
-    "ready": "جاهز",
-    "offline": "أنت غير متصل",
-    "online": "عاد الاتصال",
-    "install": "تثبيت التطبيق"
+    "name": "المستكشف العالمي"
   },
   "common": {
     "title": "العنوان",
@@ -74,40 +67,8 @@ const ar = {
     "globe": "الكرة الأرضية"
   },
   "nav": {
-    "world": "العالم",
     "globe": "الكرة الأرضية",
-    "map": "الخريطة",
-    "countries": "البلدان",
-    "landmarks": "المعالم",
-    "nature": "الطبيعة",
-    "about": "حول",
-    "search": "البحث",
-    "filters": "عوامل التصفية",
-    "language": "اللغة",
-    "theme": "المظهر",
-    "menu": "القائمة"
-  },
-  "actions": {
-    "explore": "استكشاف",
-    "view": "عرض",
-    "open": "فتح",
-    "close": "إغلاق",
-    "share": "مشاركة",
-    "copyLink": "نسخ الرابط",
-    "save": "حفظ",
-    "reset": "إعادة تعيين",
-    "retry": "إعادة المحاولة",
-    "cancel": "إلغاء",
-    "confirm": "تأكيد",
-    "back": "رجوع",
-    "next": "التالي",
-    "previous": "السابق",
-    "zoomIn": "تكبير",
-    "zoomOut": "تصغير",
-    "rotateLeft": "تدوير لليسار",
-    "rotateRight": "تدوير لليمين",
-    "toggleNames": "إظهار الأسماء",
-    "toggleAutoSpin": "تبديل الدوران التلقائي"
+    "map": "الخريطة"
   },
   "globe": {
     "title": "الكرة الأرضية",
@@ -130,20 +91,6 @@ const ar = {
     "zoomHint": "مرّر أو اضغط للتكبير",
     "resetView": "إعادة تعيين العرض",
     "loading": "جارٍ تحميل الكرة الأرضية..."
-  },
-  "map": {
-    "title": "خريطة العالم",
-    "hint": "انقر على بلد",
-    "hintClick": "انقر على بلد لعرض التفاصيل",
-    "hintZoom": "مرّر للتكبير",
-    "hintPan": "اسحب للتحريك",
-    "zoomIn": "تكبير",
-    "zoomOut": "تصغير",
-    "reset": "إعادة تعيين",
-    "showLabels": "إظهار التسميات",
-    "hideLabels": "إخفاء التسميات",
-    "projection": "إسقاط روبنسون",
-    "fit": "ملاءمة الشاشة"
   },
   "world": {
     "title": "المستكشف العالمي",
@@ -199,40 +146,6 @@ const ar = {
     "photos": "صور",
     "noData": "لا توجد بيانات متاحة"
   },
-  "search": {
-    "title": "بحث",
-    "placeholder": "ابحث عن البلدان والمعالم والطبيعة...",
-    "button": "بحث",
-    "results": "النتائج",
-    "noResults": "لا توجد نتائج",
-    "resultsFor": "نتائج البحث عن {query}",
-    "clear": "مسح",
-    "clearAll": "مسح الكل",
-    "recent": "عمليات البحث الأخيرة",
-    "popular": "شائع",
-    "suggestions": "اقتراحات",
-    "searchBy": "البحث حسب",
-    "searchCountry": "ابحث عن بلد",
-    "searchLandmark": "ابحث عن معلم",
-    "searchNature": "ابحث في الطبيعة"
-  },
-  "filters": {
-    "title": "عوامل التصفية",
-    "region": "المنطقة",
-    "subregion": "المنطقة الفرعية",
-    "population": "عدد السكان",
-    "area": "المساحة",
-    "language": "اللغة",
-    "currency": "العملة",
-    "sortBy": "الفرز حسب",
-    "sortAsc": "تصاعدي",
-    "sortDesc": "تنازلي",
-    "apply": "تطبيق",
-    "clear": "مسح",
-    "active": "عوامل التصفية النشطة",
-    "noActive": "لا توجد عوامل تصفية نشطة",
-    "allRegions": "كل المناطق"
-  },
   "language": {
     "title": "اللغة",
     "english": "الإنجليزية",
@@ -244,16 +157,6 @@ const ar = {
     "rtlNotice": "تُعرض العربية من اليمين إلى اليسار",
     "translated": "مترجم",
     "notTranslated": "غير مترجم"
-  },
-  "theme": {
-    "title": "المظهر",
-    "light": "فاتح",
-    "dark": "داكن",
-    "system": "النظام",
-    "toggle": "تبديل المظهر",
-    "current": "المظهر الحالي",
-    "change": "تغيير المظهر",
-    "contrast": "تباين عالٍ"
   },
   "landmark": {
     "title": "معلم",
@@ -299,6 +202,10 @@ const ar = {
     "nearby": "قريب",
     "noData": "لا توجد بيانات متاحة"
   },
+  "maintenance": {
+    "title": "الصيانة جارية",
+    "message": "نجري عملية صيانة قصيرة. يرجى العودة قريبًا."
+  },
   "errors": {
     "generic": "حدث خطأ ما",
     "network": "خطأ في الشبكة",
@@ -318,39 +225,7 @@ const ar = {
   },
   "a11y": {
     "skipToContent": "تخطَّ إلى المحتوى",
-    "mainNavigation": "التنقل الرئيسي",
-    "toggleNames": "تبديل أسماء البلدان",
-    "toggleAutoSpin": "تبديل الدوران التلقائي",
-    "zoomIn": "تكبير",
-    "zoomOut": "تصغير",
-    "resetView": "إعادة تعيين العرض",
-    "openCountry": "فتح تفاصيل البلد",
-    "closeDialog": "إغلاق مربع الحوار",
-    "countryDetails": "تفاصيل البلد",
-    "searchInput": "حقل البحث",
-    "filterControls": "عناصر التصفية",
-    "languageSelect": "اختيار اللغة",
-    "themeToggle": "تبديل المظهر",
-    "loading": "جارٍ التحميل",
-    "error": "خطأ",
-    "map": "خريطة",
-    "globe": "كرة أرضية",
-    "landmark": "معلم",
-    "nature": "طبيعة"
-  },
-  "meta": {
-    "siteName": "المستكشف العالمي",
-    "siteDescription": "استكشف البلدان والمعالم والطبيعة حول العالم",
-    "keywords": "بلدان, أطلس, كرة أرضية, معالم, طبيعة",
-    "ogTitle": "المستكشف العالمي - أطلس عالمي تفاعلي",
-    "ogDescription": "اكتشف العالم عبر كرة أرضية وخريطة تفاعليتين",
-    "twitterCard": "summary_large_image",
-    "canonical": "عنوان URL الأساسي",
-    "author": "المؤلف",
-    "locale": "en, fr, ar",
-    "robots": "index, follow",
-    "sitemap": "خريطة الموقع",
-    "rss": "خلاصة RSS"
+    "toggleNames": "تبديل أسماء البلدان"
   },
   "footer": {
     "about": "حول",
@@ -363,56 +238,6 @@ const ar = {
     "builtWith": "مبني باستخدام",
     "allRightsReserved": "جميع الحقوق محفوظة",
     "backToTop": "العودة إلى الأعلى"
-  },
-  "units": {
-    "km": "كم",
-    "km2": "كم²",
-    "mi": "ميل",
-    "mi2": "ميل²",
-    "m": "م",
-    "ft": "قدم",
-    "celsius": "°م",
-    "fahrenheit": "°ف",
-    "percent": "٪",
-    "people": "نسمة",
-    "years": "سنوات",
-    "perKm2": "لكل كم²"
-  },
-  "about": {
-    "title": "حول",
-    "subtitle": "حول المستكشف العالمي",
-    "mission": "مهمتنا",
-    "description": "أطلس تفاعلي لاستكشاف العالم",
-    "dataSources": "مصادر البيانات",
-    "restCountries": "REST Countries",
-    "naturalEarth": "Natural Earth",
-    "openSource": "مفتوح المصدر",
-    "credits": "الشكر والتقدير",
-    "contribute": "ساهم",
-    "reportIssue": "الإبلاغ عن مشكلة",
-    "license": "الترخيص",
-    "privacy": "الخصوصية",
-    "contact": "اتصل بنا",
-    "version": "الإصدار",
-    "changelog": "سجل التغييرات",
-    "roadmap": "خطة العمل",
-    "faq": "الأسئلة الشائعة",
-    "support": "الدعم",
-    "thankYou": "شكرًا"
-  },
-  "time": {
-    "justNow": "الآن",
-    "minutesAgo": "منذ {count} دقيقة",
-    "hoursAgo": "منذ {count} ساعة",
-    "daysAgo": "منذ {count} يوم",
-    "weeksAgo": "منذ {count} أسابيع",
-    "monthsAgo": "منذ {count} أشهر",
-    "yearsAgo": "منذ {count} سنوات",
-    "yesterday": "أمس",
-    "today": "اليوم",
-    "tomorrow": "غدًا",
-    "updated": "تم التحديث",
-    "lastUpdated": "آخر تحديث"
   },
   "pwa": {
     "offlineReady": "التطبيق جاهز للعمل دون اتصال",

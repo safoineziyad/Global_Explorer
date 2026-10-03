@@ -64,6 +64,19 @@ recorded here.
 
 ## Phase 1 orchestration decisions
 
+### W10 — Locale cleanup and shared UI
+
+- The locale cleanup retains `app.name` because the existing Footer uses it,
+  retains `nav.globe`/`nav.map` and `a11y.toggleNames` because World uses them,
+  and retains `a11y.skipToContent`, the full footer namespace and the full PWA
+  namespace for their explicitly reserved consumers. The resulting shared
+  locale baseline is 220 keys after adding the two W5 maintenance strings from
+  REQ-4.
+- `featureTranslate` remains a private helper because `useFeaturesT` calls it;
+  only its unused public export was removed. `src/lib/utils.ts` also remains
+  because Country and Globe import it. Removal of the W9-owned dead
+  `radiusForMode` export was requested in REQ-5 rather than editing that file.
+
 - **D1-0 — Concurrency model: shared working tree, disjoint ownership, retrying commits.**
   12 workers share one working tree (a pre-populated `node_modules` avoids 12×
   installs). Each worker edits ONLY its owned files and commits ONLY those files

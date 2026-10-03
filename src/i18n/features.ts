@@ -1,7 +1,7 @@
 // Additive translations for the new "Explorer" / "Time Travel" features.
 //
 // Kept in a separate module on purpose: the original locale files
-// (src/i18n/{en,fr,ar}.ts) are validated at exactly 379 keys by
+// (src/i18n/{en,fr,ar}.ts) are validated at exactly 220 keys by
 // scripts/check-i18n.mjs, so new feature strings must not change their shape.
 import { useCallback } from 'react'
 import { useI18n, type Locale } from './index'
@@ -108,11 +108,9 @@ const en: FeatureDict = {
   'timeTravel.dna': 'Place DNA',
   'timeTravel.impact': 'Global Impact',
   'timeTravel.historical': 'Historical {name}',
-  'timeTravel.overview': 'Overview',
   'timeTravel.impactButton': 'How did this place influence the world?',
   'timeTravel.flowTitle': 'Influence flow',
   'timeTravel.close': 'Close',
-  'timeTravel.ancient': 'Ancient',
 
   'dna.title': 'PLACE DNA',
   'dna.geography': 'GEOGRAPHY',
@@ -219,11 +217,9 @@ const fr: FeatureDict = {
   'timeTravel.dna': 'ADN du lieu',
   'timeTravel.impact': 'Impact mondial',
   'timeTravel.historical': '{name} historique',
-  'timeTravel.overview': 'Aperçu',
   'timeTravel.impactButton': 'Comment ce lieu a-t-il influencé le monde ?',
   'timeTravel.flowTitle': 'Flux d’influence',
   'timeTravel.close': 'Fermer',
-  'timeTravel.ancient': 'Antiquité',
 
   'dna.title': 'ADN DU LIEU',
   'dna.geography': 'GÉOGRAPHIE',
@@ -330,11 +326,9 @@ const ar: FeatureDict = {
   'timeTravel.dna': 'حمض المكان',
   'timeTravel.impact': 'التأثير العالمي',
   'timeTravel.historical': '{name} التاريخي',
-  'timeTravel.overview': 'نظرة عامة',
   'timeTravel.impactButton': 'كيف أثّر هذا المكان في العالم؟',
   'timeTravel.flowTitle': 'مسار التأثير',
   'timeTravel.close': 'إغلاق',
-  'timeTravel.ancient': 'القديم',
 
   'dna.title': 'حمض المكان',
   'dna.geography': 'الجغرافيا',
@@ -346,7 +340,7 @@ const ar: FeatureDict = {
 const DICTS: Record<Locale, FeatureDict> = { en, fr, ar }
 
 /** Translate a new-feature key, falling back to English then the raw key. */
-export function featureTranslate(
+function featureTranslate(
   locale: Locale,
   key: string,
   params?: FeatureParams

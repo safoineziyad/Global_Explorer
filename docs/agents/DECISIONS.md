@@ -48,6 +48,15 @@ recorded here.
   sitemap/robots/canonical URLs. Phase 0 documents it but does not yet enforce it
   (the build must stay green in Phase 0).
 
+- **D0-9 — esbuild install-script allowlist stored in `package.json` `allowScripts`.**
+  This npm (11.16.0) gates install scripts behind an `allow-scripts` policy. The
+  canonical, committed storage is the `package.json` root field
+  `"allowScripts": { "esbuild@0.25.12": true }` (verified: `npm approve-scripts esbuild`
+  writes exactly this, and `allow-scripts-pin=true` pins the exact version).
+  We deliberately did **not** use `dangerously-allow-all-scripts` (too broad).
+  `.npmrc` was not required. **W2 owns `package.json` and MUST preserve this field.**
+  If esbuild is later bumped, re-run `npm approve-scripts esbuild` and commit the new pin.
+
 - **D0-8 — `dist/` and `node_modules/` are NOT deleted from the working tree.**
   Per the rules, `dist/` is only removed from the deliverable/zip after Phase 0
   confirms it regenerates; `node_modules/` stays for local builds. Both are now

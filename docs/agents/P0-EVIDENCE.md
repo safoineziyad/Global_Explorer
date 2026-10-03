@@ -107,3 +107,61 @@ node_modules/.tmp
 
 Phase 0 is **merged** (see git log) and the build is green. Cleared to release the
 12 parallel worker agents.
+
+---
+
+# STEP 0.5 — fresh-install CI readiness
+
+Date: 2026-10-03
+Agent: P0.5
+Status: **PASS — a truly fresh clone installs and builds with no allow-scripts blocker.**
+
+## Root cause
+This npm (11.16.0) gates install scripts behind an `allow-scripts` policy:
+`npm warn allow-scripts 1 package has install scripts not yet covered by allowScripts: esbuild@0.25.12`.
+A clean `npm ci` could therefore skip esbuild's `postinstall` (which provisions the
+platform binary) and break the Vite build on CI / a fresh machine.
+
+## Mechanism discovered
+`npm approve-scripts esbuild` writes the canonical allowlist to the **committed**
+`package.json` root field (no `.npmrc` needed):
+```json
+"allowScripts": {
+  "esbuild@0.25.12": true
+}
+```
+`allow-scripts-pin = true`, so the entry is version-pinned. Kept narrow
+(`esbuild@0.25.12` only) — deliberately NOT `dangerously-allow-all-scripts`.
+
+## Fresh-clone verification (temp dir, no node_modules)
+```
+git clone --no-hardlinks <repo> C:\Users\Zbook\AppData\Local\Temp\opencode\ge-clone-p05
+Test-Path <clone>\node_modules                     -> False
+Select-String package.json allowScripts            -> "esbuild@0.25.12": true  (present)
+
+2) npm ci
+   added 76 packages in 10s
+   npm ci exit: 0
+   allow-scripts blocker check (not yet covered / allow-scripts / approve-scripts)
+     -> (no allow-scripts blocker printed)
+   did esbuild postinstall run?
+     node_modules\@esbuild\win32-x64\esbuild.exe   -> True
+     node_modules\esbuild\bin\esbuild              -> True
+
+3) npx tsc -b --force   -> exit 0
+4) npm run check        -> i18n check passed (en/fr/ar, 379 keys) + CSS quality check passed, exit 0
+5) npm test             -> tests 7 | pass 7 | fail 0, exit 0
+6) npm run build        -> exit 0, ✓ 73 modules transformed, ✓ built in 1.32s
+     dist/index.html                  0.40 kB │ gzip:   0.27 kB
+     dist/assets/index-f7IFhmkU.css   0.34 kB │ gzip:   0.25 kB
+     dist/assets/index-CJwae6rs.js  325.30 kB │ gzip: 104.22 kB
+   bundle hash check -> index-CJwae6rs.js, index-f7IFhmkU.css  (identical to baseline)
+```
+
+**Result:** fresh `npm ci` exits 0 with no "not yet covered" blocker, esbuild's
+binary is provisioned, and the build reproduces the baseline hashes exactly.
+
+## Commit
+```
+[P0.5] ci: make fresh npm ci reproducible (fixes audit-ci-install-scripts)
+```

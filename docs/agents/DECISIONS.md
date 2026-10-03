@@ -61,3 +61,39 @@ recorded here.
   Per the rules, `dist/` is only removed from the deliverable/zip after Phase 0
   confirms it regenerates; `node_modules/` stays for local builds. Both are now
   git-ignored.
+
+## Phase 1 orchestration decisions
+
+- **D1-0 — Concurrency model: shared working tree, disjoint ownership, retrying commits.**
+  12 workers share one working tree (a pre-populated `node_modules` avoids 12×
+  installs). Each worker edits ONLY its owned files and commits ONLY those files
+  (`git add <files>`, never `git add -A`, never reset/checkout/stash/amend/force).
+  If `git add`/`commit` hits `.git/index.lock`, wait 2s and retry up to 5×.
+  To avoid 12-way write conflicts, `docs/agents/LOCKS.md` is maintained by the
+  orchestrator, and each worker records its claims + evidence in its own
+  `docs/agents/W#-EVIDENCE.md`. `DECISIONS.md` / `REQUESTS.md` are shared-append
+  files: append one short block per edit and retry on failure.
+
+- **D1-1 — File-ownership arbitration (resolves overlaps in the master prompt).**
+  - `src/components/Globe.tsx` → **W8** (W6 submits a11y requests; W6 builds the
+    off-screen accessible directory as a separate component).
+  - `src/components/MiniMap.tsx` → **W8** (W6 submits a11y; W9 submits zoom).
+  - `src/components/WorldMap.tsx` → **W6** (W8 submits perf requests).
+  - `src/components/TimeSlider.tsx` → **W7** (W6 submits a11y).
+  - `src/components/ExplorerLauncher.tsx` → **W6** (W7 mobile + W9 chip-label
+    changes go through REQUESTS.md).
+  - `src/components/ExplorerModeSelector.tsx` → **W9** (relabel/mode semantics).
+  - `src/components/PlaceExtras.tsx` → **W6** (W9 submits content requests).
+  - `src/components/PlaceDNA.tsx`, `GlobalImpactFlow.tsx` → **W9**.
+  - `src/components/panels/*` → **W9** (logic/content/markup; W6 submits a11y
+    requests).
+  - `src/components/panels/panelStyles.ts` → **W7**.
+  - `src/index.css` → **W6**; W7 adds media queries in a NEW
+    `src/styles/breakpoints.css` and requests the import line.
+  - `src/i18n/*` → **W10** (all new strings for W2/W4/W5/W9 go through
+    REQUESTS.md; W10 is expected to add them proactively).
+  - Everything else as listed in `LOCKS.md` / the master prompt.
+
+- **D1-2 — Scope discipline.** Workers implement CRITICAL/HIGH first, then MEDIUM
+  where feasible; LOW / NICE-TO-HAVE items are logged in `BACKLOG.md` (permitted
+  by the Definition of Done) rather than risking the regression baseline.

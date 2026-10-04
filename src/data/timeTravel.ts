@@ -411,13 +411,14 @@ function pick<T>(list: T[], n: number): T {
 
 /** Generic era snapshot for any place name. */
 export function snapshotFor(name: string, year: number): EraInfo {
+  const displayName = (name ?? '').trim() || 'This place'
   const known = matchHistoricalPlace(name)
   if (known) {
     const era = yearToEra(year)
     const found = known.eras[era] ?? Object.values(known.eras).find(Boolean)
     if (found) return found
   }
-  const s = seed(name)
+  const s = seed(displayName)
   const pool = [
     ['A settlement of traders and farmers.', 'Trade routes carried news and goods.', 'Borders and daily life shifted.', 'Neighbouring regions'],
     ['A frontier town on a river or road.', 'Craft and learning flourished.', 'New buildings rose over old ones.', 'Nearby ports and passes'],
@@ -425,22 +426,23 @@ export function snapshotFor(name: string, year: number): EraInfo {
   ]
   const row = pick(pool, s + year)
   return {
-    existed: `${row[0]} (${name}, around ${year})`,
+    existed: `${row[0]} (${displayName}, around ${year})`,
     happened: row[1],
     changed: row[2],
     connected: [row[3], 'The wider world'],
-    influence: `${name} quietly passed its ideas along the routes that crossed it.`,
+    influence: `${displayName} quietly passed its ideas along the routes that crossed it.`,
   }
 }
 
 /** Place DNA for any place name. */
 export function dnaFor(name: string): { geography: string; history: string; culture: string } {
+  const displayName = (name ?? '').trim() || 'This place'
   const known = matchHistoricalPlace(name)
   if (known) return known.dna
   return {
-    geography: `${name} sits where its landscape shaped how people travelled and traded.`,
-    history: `${name} changed hands and changed shape across the centuries.`,
-    culture: `${name} blended local traditions with those of passing travellers.`,
+    geography: `${displayName} sits where its landscape shaped how people travelled and traded.`,
+    history: `${displayName} changed hands and changed shape across the centuries.`,
+    culture: `${displayName} blended local traditions with those of passing travellers.`,
   }
 }
 
@@ -458,10 +460,18 @@ export function impactChainFor(name: string): ImpactLink[] {
 
 /** Place → … → Today flow for any place name. */
 export function impactFlowFor(name: string): string[] {
+  const displayName = (name ?? '').trim() || 'This place'
   const known = matchHistoricalPlace(name)
-  if (known) return known.flow
+  if (known) {
+    const flow = known.flow.filter((step) => step && step.trim().length > 0)
+    if (flow.length >= 2) {
+      const normalized = [displayName, ...flow.slice(1)]
+      while (normalized.length < 6) normalized.push('Today')
+      return normalized.slice(0, 6)
+    }
+  }
   return [
-    name,
+    displayName,
     'Local discovery',
     'Regional trade',
     'Migration',

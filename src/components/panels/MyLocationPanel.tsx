@@ -53,6 +53,9 @@ export default function MyLocationPanel() {
           📍 {t('myLocation.useLocation')}
         </button>
       </div>
+      <p style={{ ...subtleTextStyle, margin: '-0.25rem 0 0.75rem' }}>
+        {t('myLocation.disclosure')}
+      </p>
 
       {statusText ? (
         <div style={{ fontSize: '0.72rem', color: '#8fa3bd', marginBottom: 8 }}>{statusText}</div>

@@ -5,6 +5,8 @@ export type LandmarkLocation = {
   lng: number
 }
 
+export type WonderListId = 'new-seven' | 'ancient-seven' | 'natural-highlights'
+
 export type Landmark = {
   slug: string
   name: string
@@ -18,6 +20,7 @@ export type Landmark = {
   facts: string[]
   bestTime?: string
   unesco: boolean
+  wonderLists?: WonderListId[]
 }
 
 export const landmarks: Landmark[] = [
@@ -40,6 +43,7 @@ export const landmarks: Landmark[] = [
     ],
     bestTime: 'April to May, and September to October',
     unesco: true,
+    wonderLists: ['natural-highlights'],
   },
   {
     slug: 'machu-picchu',
@@ -60,6 +64,7 @@ export const landmarks: Landmark[] = [
     ],
     bestTime: 'May to September (dry season)',
     unesco: true,
+    wonderLists: ['new-seven'],
   },
   {
     slug: 'great-wall',
@@ -80,6 +85,7 @@ export const landmarks: Landmark[] = [
     ],
     bestTime: 'April to May and September to October',
     unesco: true,
+    wonderLists: ['new-seven'],
   },
   {
     slug: 'petra',
@@ -100,6 +106,7 @@ export const landmarks: Landmark[] = [
     ],
     bestTime: 'March to May and September to November',
     unesco: true,
+    wonderLists: ['new-seven'],
   },
   {
     slug: 'taj-mahal',
@@ -120,6 +127,7 @@ export const landmarks: Landmark[] = [
     ],
     bestTime: 'October to March',
     unesco: true,
+    wonderLists: ['new-seven'],
   },
   {
     slug: 'colosseum',
@@ -140,6 +148,7 @@ export const landmarks: Landmark[] = [
     ],
     bestTime: 'April to June and September to October',
     unesco: true,
+    wonderLists: ['new-seven'],
   },
   {
     slug: 'pyramids',
@@ -160,6 +169,7 @@ export const landmarks: Landmark[] = [
     ],
     bestTime: 'October to April',
     unesco: true,
+    wonderLists: ['ancient-seven'],
   },
   {
     slug: 'christ-redeemer',
@@ -180,6 +190,7 @@ export const landmarks: Landmark[] = [
     ],
     bestTime: 'May to October',
     unesco: false,
+    wonderLists: ['new-seven'],
   },
   {
     slug: 'angkor-wat',
@@ -260,6 +271,7 @@ export const landmarks: Landmark[] = [
     ],
     bestTime: 'November to March',
     unesco: true,
+    wonderLists: ['new-seven'],
   },
 ]
 

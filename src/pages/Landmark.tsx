@@ -5,11 +5,13 @@ import { findLandmark } from '../data/landmarks'
 import { findFallbackCountry } from '../data/countries'
 import PlaceExtras from '../components/PlaceExtras'
 import { useExplorer } from '../state/explorer'
+import { useFeaturesT } from '../i18n/features'
 
 export default function Landmark() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const t = useT()
+  const featureT = useFeaturesT()
   const { addVisited } = useExplorer()
   const landmark = findLandmark(slug)
 
@@ -36,14 +38,21 @@ export default function Landmark() {
   return (
     <div style={{ minHeight: '100vh', background: '#0b111c' }}>
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '2rem 1.25rem 4rem' }}>
-        <button type="button" onClick={() => navigate(-1)} style={{ marginBottom: '1.5rem' }}>
-          ← {t('common.back')}
+        <button type="button" onClick={() => navigate('/landmarks')} style={{ marginBottom: '1.5rem' }}>
+          ← Back to landmarks
         </button>
 
         <h1 style={{ margin: 0, fontSize: '2rem' }}>{landmark.name}</h1>
         <p style={{ color: '#8fa3bd', marginTop: '0.4rem' }}>
           {landmark.type} · {country?.name.common ?? landmark.country}
           {landmark.unesco ? ' · UNESCO' : ''}
+          {landmark.wonderLists?.length ? ` · ${landmark.wonderLists.map((list) =>
+            list === 'new-seven'
+              ? featureT('site.newSeven')
+              : list === 'ancient-seven'
+                ? featureT('site.ancientWonders')
+                : featureT('site.naturalHighlights')
+          ).join(' · ')}` : ''}
         </p>
 
         <p style={{ marginTop: '1.25rem', lineHeight: 1.7 }}>{landmark.description}</p>

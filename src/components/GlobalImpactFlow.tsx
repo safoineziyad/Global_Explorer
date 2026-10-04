@@ -13,7 +13,8 @@ const STAGES = ['PLACE', 'DISCOVERY / EVENT', 'LOCAL', 'REGIONAL', 'GLOBAL', 'TO
 export default function GlobalImpactFlow({ placeName }: { placeName: string }) {
   const t = useFeaturesT()
   const [open, setOpen] = useState(false)
-  const steps = impactFlowFor(placeName)
+  const name = placeName.trim() || 'This place'
+  const steps = impactFlowFor(name)
 
   return (
     <section style={{ marginTop: '2rem' }}>

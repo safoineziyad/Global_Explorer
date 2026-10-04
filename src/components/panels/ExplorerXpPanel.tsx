@@ -12,14 +12,13 @@ const STATS: { key: keyof ReturnType<typeof xpFor>; emoji: string; label: string
 ]
 
 /**
- * Additive "Explorer XP" stats panel. Curiosity-driven profile with a sample
- * level that grows as places are opened during the session.
+ * Explorer progress is derived from distinct places opened and stored locally.
  */
 export default function ExplorerXpPanel() {
   const t = useFeaturesT()
   const { visited } = useExplorer()
-  const xp = xpFor(visited.length)
-  const progress = ((xp.level % 5) / 5) * 100
+  const xp = xpFor(visited)
+  const progress = ((visited.length % 5) / 5) * 100
 
   return (
     <section>

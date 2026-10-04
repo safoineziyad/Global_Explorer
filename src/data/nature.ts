@@ -19,6 +19,7 @@ export type NatureSite = {
   bestTime: string
   activities: string[]
   facts: string[]
+  wonderLists?: ('natural-highlights')[]
 }
 
 export const natureSites: NatureSite[] = [
@@ -63,6 +64,7 @@ export const natureSites: NatureSite[] = [
       'The Colorado River continues to shape it today.',
       'It is one of the Seven Natural Wonders of the World.',
     ],
+    wonderLists: ['natural-highlights'],
   },
   {
     slug: 'niagara-falls',
@@ -147,6 +149,7 @@ export const natureSites: NatureSite[] = [
       'Coral bleaching linked to warming seas is a major concern.',
       'It is a UNESCO World Heritage Site.',
     ],
+    wonderLists: ['natural-highlights'],
   },
   {
     slug: 'yellowstone',

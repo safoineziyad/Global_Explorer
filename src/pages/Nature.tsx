@@ -5,6 +5,7 @@ import PlaceExtras from '../components/PlaceExtras'
 import { useExplorer } from '../state/explorer'
 import { findNatureSite } from '../data/nature'
 import { findFallbackCountry } from '../data/countries'
+import { useFeaturesT } from '../i18n/features'
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -33,6 +34,7 @@ export default function Nature() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const t = useT()
+  const featureT = useFeaturesT()
   const { addVisited } = useExplorer()
   useEffect(() => {
     if (slug) addVisited('nature:' + slug)
@@ -57,13 +59,14 @@ export default function Nature() {
   return (
     <div style={{ minHeight: '100vh', background: '#0b111c' }}>
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '2rem 1.25rem 4rem' }}>
-        <button type="button" onClick={() => navigate(-1)} style={{ marginBottom: '1.5rem' }}>
-          ← {t('common.back')}
+        <button type="button" onClick={() => navigate('/nature')} style={{ marginBottom: '1.5rem' }}>
+          ← Back to nature
         </button>
 
         <h1 style={{ margin: 0, fontSize: '2rem' }}>{site.name}</h1>
         <p style={{ color: '#8fa3bd', marginTop: '0.4rem' }}>
           {site.type} · {country?.name.common ?? site.country}
+          {site.wonderLists?.length ? ` · ${featureT('site.naturalHighlights')}` : ''}
         </p>
 
         <p style={{ marginTop: '1.25rem', lineHeight: 1.7 }}>{site.description}</p>

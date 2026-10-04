@@ -8,6 +8,8 @@ import { flagEmoji, formatArea, formatList, formatNumber } from '../lib/utils'
 import type { CountryRecord } from '../data/countries'
 import PlaceExtras from '../components/PlaceExtras'
 import { useExplorer } from '../state/explorer'
+import { useFeaturesT } from '../i18n/features'
+import { getCountryApiError, isRemoteCountryApiConfigured } from '../services/restCountries'
 
 type Status = 'loading' | 'ready' | 'missing'
 
@@ -32,6 +34,7 @@ export default function Country() {
   const { cca3 } = useParams<{ cca3: string }>()
   const navigate = useNavigate()
   const t = useT()
+  const featureT = useFeaturesT()
   const { atlas } = useAtlas()
   const { addVisited } = useExplorer()
 
@@ -40,6 +43,8 @@ export default function Country() {
 
   const [record, setRecord] = useState<CountryRecord | null>(null)
   const [status, setStatus] = useState<Status>('loading')
+  const [apiError, setApiError] = useState(false)
+  const [retrying, setRetrying] = useState(false)
 
   useEffect(() => {
     if (!code) {
@@ -57,6 +62,7 @@ export default function Country() {
         if (result) {
           setRecord(result)
           setStatus('ready')
+          setApiError(Boolean(getCountryApiError()))
         } else {
           setStatus('missing')
         }
@@ -70,6 +76,26 @@ export default function Country() {
       controller.abort()
     }
   }, [code])
+
+  const retryCountry = async () => {
+    if (!code) return
+    setRetrying(true)
+    try {
+      const result = await fetchCountry(code, { forceRefresh: true })
+      if (result) {
+        setRecord(result)
+        setStatus('ready')
+      } else {
+        setStatus('missing')
+      }
+      setApiError(Boolean(getCountryApiError()))
+    } catch (error) {
+      console.error(`[Country] Could not retry loading ${code}.`, error)
+      setApiError(true)
+    } finally {
+      setRetrying(false)
+    }
+  }
 
   useEffect(() => {
     if (cca3) addVisited('country:' + cca3)
@@ -136,6 +162,19 @@ export default function Country() {
           ← {t('common.back')}
         </button>
 
+        {apiError ? (
+          <div className="catalog-note" role="status">
+            <p>{isRemoteCountryApiConfigured()
+              ? 'Live country details could not be refreshed; saved data is shown.'
+              : 'Live country details are not configured; bundled data is shown.'}</p>
+            {isRemoteCountryApiConfigured() ? (
+              <button type="button" onClick={() => void retryCountry()} disabled={retrying}>
+                {retrying ? 'Retrying…' : 'Retry live data'}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+
         <header style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
           {flag ? (
             <img
@@ -197,9 +236,12 @@ export default function Country() {
           {currencies.length > 0 ? (
             <InfoRow label={t('country.currencies')} value={formatList(currencies)} />
           ) : null}
-          {country.timezones && country.timezones.length > 0 ? (
-            <InfoRow label={t('country.timezones')} value={formatList(country.timezones.slice(0, 4))} />
-          ) : null}
+          <InfoRow
+            label={t('country.timezones')}
+            value={country.timezones?.length
+              ? formatList(country.timezones.slice(0, 4))
+              : featureT('country.timezoneUnavailable')}
+          />
           {country.borders && country.borders.length > 0 ? (
             <InfoRow label={t('country.borders')} value={country.borders.join(', ')} />
           ) : null}

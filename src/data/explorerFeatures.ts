@@ -208,7 +208,7 @@ export function countsWithin(discoveries: Discovery[], meters = 1000): Record<st
 }
 
 /* ------------------------------------------------------------------ */
-/* Explorer XP (sample, curiosity-based)                               */
+/* Explorer progress derived from places the user actually opened.      */
 /* ------------------------------------------------------------------ */
 
 export type ExplorerXp = {
@@ -220,24 +220,18 @@ export type ExplorerXp = {
   routes: number
 }
 
-export const XP_SAMPLE: ExplorerXp = {
-  level: 12,
-  countries: 18,
-  landmarks: 74,
-  discoveries: 31,
-  cultures: 22,
-  routes: 14,
-}
-
-/** Adds discoveries/landmarks found during the session on top of the sample. */
-export function xpFor(visitedCount: number): ExplorerXp {
-  const bonus = Math.min(visitedCount, 99)
+export function xpFor(visited: readonly string[]): ExplorerXp {
+  const uniqueVisited = [...new Set(visited)]
+  const count = (prefix: string) => new Set(
+    uniqueVisited.filter((key) => key.startsWith(`${prefix}:`)).map((key) => key.slice(prefix.length + 1))
+  ).size
+  const total = uniqueVisited.length
   return {
-    level: XP_SAMPLE.level + Math.floor(bonus / 5),
-    countries: XP_SAMPLE.countries,
-    landmarks: XP_SAMPLE.landmarks + bonus,
-    discoveries: XP_SAMPLE.discoveries + bonus,
-    cultures: XP_SAMPLE.cultures,
-    routes: XP_SAMPLE.routes,
+    level: Math.floor(total / 5) + 1,
+    countries: count('country'),
+    landmarks: count('landmark'),
+    discoveries: 0,
+    cultures: 0,
+    routes: 0,
   }
 }

@@ -1,27 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { generateNearby, haversineKm } from '../../data/explorerFeatures'
-import { historicalPlaces } from '../../data/timeTravel'
+import { generateNearby } from '../../data/explorerFeatures'
 import { useFeaturesT } from '../../i18n/features'
 import { useExplorer } from '../../state/explorer'
 import { cardStyle, primaryActionStyle, actionStyle, subtleTextStyle } from './panelStyles'
 
-function nearestPlace(anchor: { lat: number; lng: number }) {
-  let best = historicalPlaces[0]
-  let bestKm = Number.POSITIVE_INFINITY
-  for (const place of historicalPlaces) {
-    const km = haversineKm(anchor, { lat: place.lat, lng: place.lng })
-    if (km < bestKm) {
-      bestKm = km
-      best = place
-    }
-  }
-  return best
-}
-
 /**
- * Additive "AI Explorer": an "I'm here. Surprise me." button that suggests a
- * nearby hidden discovery, with an Explore button.
+ * Demonstration suggestions are generated locally, not by an AI service.
  */
 export default function AiExplorerPanel() {
   const t = useFeaturesT()
@@ -31,7 +16,6 @@ export default function AiExplorerPanel() {
 
   const discoveries = useMemo(() => generateNearby(point, 3), [point])
   const suggestion = index === null ? null : discoveries[index % discoveries.length]
-  const target = useMemo(() => nearestPlace(point), [point])
 
   return (
     <section>
@@ -69,7 +53,13 @@ export default function AiExplorerPanel() {
               type="button"
               style={actionStyle}
               onClick={() => {
-                if (target) navigate(`/country/${target.cca3}`)
+                if (suggestion) {
+                  const params = new URLSearchParams({
+                    lat: String(suggestion.lat),
+                    lng: String(suggestion.lng),
+                  })
+                  navigate(`/world?${params.toString()}`)
+                }
               }}
             >
               🧭 {t('ai.explore')}

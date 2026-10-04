@@ -1,0 +1,31 @@
+/* W7 — responsive / touch / RTL rules.
+ * Imported once from src/index.css (requested in docs/agents/REQUESTS.md).
+ * Kept deliberately small: layout that is already inline is driven from
+ * src/pages/World.tsx via matchMedia, so these rules only cover native
+ * controls, small-screen typography and the opt-in .ge-* hooks. */
+
+/* Native sliders get a guaranteed 44px touch hit area everywhere. */
+input[type='range'] {
+  min-height: 44px;
+}
+
+/* Small screens: 16px form controls avoid the iOS focus zoom. */
+@media (max-width: 672px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  .ge-readout {
+    max-width: none;
+  }
+}
+
+/* Narrow screens: let the world toolbar reflow without overflowing. */
+@media (max-width: 420px) {
+  .ge-world-header {
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+}

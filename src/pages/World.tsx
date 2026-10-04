@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Globe, { type GlobeMarker } from '../components/Globe'
 import WorldMap from '../components/WorldMap'
 import Tooltip from '../components/Tooltip'
@@ -89,6 +89,7 @@ export default function World() {
   const { atlas, loading, error } = useAtlas()
   const { t, locale, setLocale } = useI18n()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const prefersReducedMotion = usePrefersReducedMotion()
   const [view, setView] = useState<View>('globe')
   const [showNames, setShowNames] = useState(false)
@@ -97,13 +98,31 @@ export default function World() {
   const [hovered, setHovered] = useState<string | null>(null)
 
   const countries = useMemo(() => globeCountries(atlas), [atlas])
+  const latParam = searchParams.get('lat')
+  const lngParam = searchParams.get('lng')
+  const focusLat = Number(latParam)
+  const focusLng = Number(lngParam)
+  const focusPoint = latParam !== null && lngParam !== null &&
+    Number.isFinite(focusLat) && Number.isFinite(focusLng) &&
+    focusLat >= -90 && focusLat <= 90 && focusLng >= -180 && focusLng <= 180
+    ? { lat: focusLat, lng: focusLng }
+    : null
+  const markers = focusPoint
+    ? [...MARKERS, {
+        id: 'demo-focus',
+        name: 'Demo suggestion location',
+        lon: focusPoint.lng,
+        lat: focusPoint.lat,
+        emoji: '✨',
+      }]
+    : MARKERS
 
   const handleCountryClick = (cca3: string) => {
     navigate(`/country/${cca3}`)
   }
 
   return (
-    <div style={{ position: 'relative', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'relative', height: 'calc(100vh - 64px)', minHeight: 520, display: 'flex', flexDirection: 'column' }}>
       <header
         style={{
           display: 'flex',
@@ -206,7 +225,8 @@ export default function World() {
           <Globe
             countries={countries}
             atlas={atlas}
-            markers={MARKERS}
+            markers={markers}
+            initialCenter={focusPoint ? [focusPoint.lng, focusPoint.lat] : undefined}
             onCountryClick={handleCountryClick}
             onMarkerClick={(marker) => {
               if (marker.href) navigate(marker.href)
@@ -214,7 +234,7 @@ export default function World() {
             onHoverChange={(shape) => setHovered(shape?.name ?? null)}
             showNames={showNames}
             lowPower={lowPower}
-            autoSpin={autoSpin}
+            autoSpin={focusPoint ? false : autoSpin}
             reduceMotion={prefersReducedMotion}
             emptyHint={t('errors.atlasFailed')}
           />
@@ -251,6 +271,19 @@ export default function World() {
           </div>
         ) : null}
       </main>
+      <details className="world-country-list">
+        <summary>Keyboard-accessible country list</summary>
+        <ul>
+          {countries.map((country) => (
+            <li key={country.cca3}>
+              <button type="button" onClick={() => handleCountryClick(country.cca3)}>
+                {country.name} ({country.cca3})
+              </button>
+            </li>
+          ))}
+        </ul>
+        <p>Some small countries and territories may not have a shape in the low-resolution map.</p>
+      </details>
     </div>
   )
 }

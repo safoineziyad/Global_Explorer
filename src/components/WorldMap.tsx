@@ -37,7 +37,7 @@ export default function WorldMap({ atlas, onCountryClick, selectedCca3 = null }:
 
   return (
     <svg
-      role="img"
+      role="group"
       aria-label="World map"
       viewBox={`0 0 ${atlas.width || 1000} ${atlas.height || 500}`}
       preserveAspectRatio="xMidYMid meet"

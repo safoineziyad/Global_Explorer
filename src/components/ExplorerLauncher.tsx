@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { useFeaturesT } from '../i18n/features'
@@ -40,13 +40,45 @@ export default function ExplorerLauncher() {
     setNearMeOn,
   } = useExplorer()
   const [hover, setHover] = useState(false)
+  const launcherRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useRef<HTMLElement>(null)
 
   const selected: ExplorerPanelId = activePanel ?? 'location'
+
+  useEffect(() => {
+    if (!activePanel) return
+    const panel = dialogRef.current
+    const focusable = () => panel?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    ) ?? []
+    focusable()[0]?.focus()
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closePanel()
+        launcherRef.current?.focus()
+      } else if (event.key === 'Tab') {
+        const items = Array.from(focusable())
+        if (!items.length) return
+        const first = items[0]
+        const last = items[items.length - 1]
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault()
+          last.focus()
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault()
+          first.focus()
+        }
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [activePanel, closePanel])
 
   return (
     <>
       {/* Floating launcher */}
       <button
+        ref={launcherRef}
         type="button"
         onClick={() => (activePanel ? closePanel() : openPanel('location'))}
         aria-label={activePanel ? t('explorer.close') : t('explorer.open')}
@@ -78,29 +110,40 @@ export default function ExplorerLauncher() {
       </button>
 
       {activePanel ? (
+        <>
+        <button
+          className="explorer-backdrop"
+          type="button"
+          aria-label={t('explorer.close')}
+          onClick={() => { closePanel(); launcherRef.current?.focus() }}
+        />
         <aside
-          dir={locale === 'ar' ? 'rtl' : 'ltr'}
-          style={{
-            position: 'fixed',
-            insetInlineStart: 16,
-            bottom: 72,
-            zIndex: 61,
-            width: 'min(380px, 92vw)',
-            maxHeight: '78vh',
-            overflowY: 'auto',
-            background: '#0f1724',
-            border: '1px solid #243247',
-            borderRadius: 12,
-            padding: '0.9rem',
-            boxShadow: '0 16px 40px rgba(0,0,0,0.55)',
-            color: '#eef4ff',
-          }}
-        >
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="explorer-dialog-title"
+            dir={locale === 'ar' ? 'rtl' : 'ltr'}
+            style={{
+              position: 'fixed',
+              insetInlineStart: 16,
+              bottom: 72,
+              zIndex: 61,
+              width: 'min(380px, 92vw)',
+              maxHeight: '78vh',
+              overflowY: 'auto',
+              background: '#0f1724',
+              border: '1px solid #243247',
+              borderRadius: 12,
+              padding: '0.9rem',
+              boxShadow: '0 16px 40px rgba(0,0,0,0.55)',
+              color: '#eef4ff',
+            }}
+          >
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-            <strong style={{ letterSpacing: '0.04em' }}>🧭 {t('explorer.title')}</strong>
+            <strong id="explorer-dialog-title" style={{ letterSpacing: '0.04em' }}>🧭 {t('explorer.title')}</strong>
             <button
               type="button"
-              onClick={closePanel}
+              onClick={() => { closePanel(); launcherRef.current?.focus() }}
               aria-label={t('explorer.close')}
               style={{
                 marginInlineStart: 'auto',
@@ -166,14 +209,18 @@ export default function ExplorerLauncher() {
             </label>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
+          <div role="tablist" aria-label={t('explorer.title')} style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
             {TABS.map((tab) => {
               const active = tab.id === selected
               return (
                 <button
                   key={tab.id}
                   type="button"
-                  aria-pressed={active}
+                  id={`explorer-tab-${tab.id}`}
+                  role="tab"
+                  aria-selected={active}
+                  aria-controls="explorer-panel"
+                  tabIndex={active ? 0 : -1}
                   onClick={() => openPanel(tab.id)}
                   style={{
                     padding: '0.3rem 0.5rem',
@@ -191,7 +238,13 @@ export default function ExplorerLauncher() {
             })}
           </div>
 
-          <div style={{ borderTop: '1px solid #1f2c3f', paddingTop: 10 }}>
+          <div
+            id="explorer-panel"
+            role="tabpanel"
+            aria-labelledby={`explorer-tab-${selected}`}
+            tabIndex={0}
+            style={{ borderTop: '1px solid #1f2c3f', paddingTop: 10 }}
+          >
             {selected === 'location' ? <MyLocationPanel /> : null}
             {selected === 'around' ? <ExploreAroundMePanel /> : null}
             {selected === 'machine' ? <TimeMachinePanel /> : null}
@@ -204,6 +257,7 @@ export default function ExplorerLauncher() {
             {t('explorer.mockNote')}
           </p>
         </aside>
+        </>
       ) : null}
     </>
   )

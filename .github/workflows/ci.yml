@@ -1,0 +1,99 @@
+name: CI
+
+# Global Explorer CI — Part G regression gate.
+#
+# `npm ci` must stay reproducible: `package.json` carries the narrow
+# `allowScripts: { "esbuild@0.25.12": true }` entry so esbuild's platform
+# binary is provisioned on a fresh install. Do NOT remove it (see D0-9).
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # W2's production build requires an explicit site origin (audit-site-url).
+  SITE_URL: https://global-explorer.example
+
+jobs:
+  build:
+    name: typecheck · check · test · build (Node 24)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24 (from .nvmrc) + npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install (fresh, reproducible)
+        run: npm ci
+
+      - name: Typecheck (tsc -b --force)
+        run: npx tsc -b --force
+
+      - name: Content checks (i18n parity + CSS)
+        run: npm run check
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+
+  e2e:
+    name: Playwright E2E + axe (chromium)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24 (from .nvmrc) + npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install (fresh, reproducible)
+        run: npm ci
+
+      - name: Install Playwright chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Download dist from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: E2E (preview server is started by playwright.config.ts)
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          if-no-files-found: ignore
+          retention-days: 7

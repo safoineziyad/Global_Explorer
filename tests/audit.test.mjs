@@ -5,7 +5,10 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { robinsonProject } from '../src/lib/robinson.ts'
-import { MODE_RADIUS_KM, generateNearby, haversineKm } from '../src/data/explorerFeatures.ts'
+import { MODE_RADIUS_KM, generateNearby, haversineKm, xpFor } from '../src/data/explorerFeatures.ts'
+import { landmarks } from '../src/data/landmarks.ts'
+import { natureSites } from '../src/data/nature.ts'
+import { normalizeCountryRecord } from '../src/services/restCountriesSchema.ts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'))
@@ -36,13 +39,15 @@ test('countries: 250 unique records with core fields', () => {
     assert.match(c.cca3, /^[A-Z]{3}$/)
     const name = typeof c.name === 'string' ? c.name : c.name?.common
     assert.ok(name && name.length > 0, `name: ${c.cca3}`)
-    assert.ok(Number.isFinite(c.area), `area: ${c.cca3}`)
+    assert.ok(Number.isFinite(c.area) && c.area >= 0, `area: ${c.cca3}`)
     assert.ok(Array.isArray(c.latlng) && c.latlng.length === 2, `latlng: ${c.cca3}`)
     assert.ok(Number.isFinite(c.latlng[0]) && Number.isFinite(c.latlng[1]), `latlng finite: ${c.cca3}`)
     assert.ok(!seen.has(c.cca3), `duplicate: ${c.cca3}`)
     seen.add(c.cca3)
   }
   assert.equal(seen.size, 250)
+  assert.equal(countries.find((country) => country.cca3 === 'SJM').area, 61399)
+  assert.equal(countries.find((country) => country.cca3 === 'FSM').currencies.USD.name, 'United States dollar')
 })
 
 test('coverage: only CYN/KOS/SOL are atlas-only', () => {
@@ -83,8 +88,106 @@ test('every explorer mode maps to a positive radius', () => {
   }
 })
 
+test('wonder tags cover the New Seven and identify the current ancient-wonder gap', () => {
+  const newSeven = landmarks.filter((place) => place.wonderLists?.includes('new-seven')).map((place) => place.slug).sort()
+  assert.deepEqual(newSeven, [
+    'chichen-itza',
+    'christ-redeemer',
+    'colosseum',
+    'great-wall',
+    'machu-picchu',
+    'petra',
+    'taj-mahal',
+  ])
+  assert.deepEqual(
+    landmarks.filter((place) => place.wonderLists?.includes('ancient-seven')).map((place) => place.slug),
+    ['pyramids']
+  )
+  assert.ok(natureSites.filter((place) => place.wonderLists?.includes('natural-highlights')).length > 0)
+})
+
+test('Explorer progress contains only distinct visited place records', () => {
+  assert.deepEqual(xpFor([]), {
+    level: 1,
+    countries: 0,
+    landmarks: 0,
+    discoveries: 0,
+    cultures: 0,
+    routes: 0,
+  })
+  assert.deepEqual(xpFor(['country:FRA', 'country:FRA', 'landmark:petra']), {
+    level: 1,
+    countries: 1,
+    landmarks: 1,
+    discoveries: 0,
+    cultures: 0,
+    routes: 0,
+  })
+})
+
+test('REST Countries v5 records normalize to the UI country schema', () => {
+  const country = normalizeCountryRecord({
+    names: { common: 'Canada', official: 'Canada' },
+    codes: { alpha_2: 'CA', alpha_3: 'CAN' },
+    capitals: [{ name: 'Ottawa', primary: true, coordinates: { lat: 45.42, lng: -75.7 } }],
+    flag: { url_svg: 'https://flags.restcountries.com/v5/svg/ca.svg' },
+    region: 'Americas',
+    subregion: 'North America',
+    population: 38005238,
+    area: { kilometers: 9984670 },
+    currencies: [{ code: 'CAD', name: 'Canadian dollar', symbol: '$' }],
+    languages: [{ name: 'English', bcp47: 'en' }, { name: 'French', bcp47: 'fr' }],
+    timezones: ['UTC-08:00', 'UTC-07:00'],
+    borders: ['USA'],
+    tlds: ['.ca'],
+    memberships: { un: true },
+    landlocked: false,
+    maps: { google_maps: 'https://maps.example/ca' },
+  })
+  assert.deepEqual(country, {
+    cca3: 'CAN',
+    cca2: 'CA',
+    name: { common: 'Canada', official: 'Canada' },
+    capital: ['Ottawa'],
+    region: 'Americas',
+    subregion: 'North America',
+    population: 38005238,
+    area: 9984670,
+    flags: {
+      svg: 'https://flags.restcountries.com/v5/svg/ca.svg',
+      png: 'https://flags.restcountries.com/v5/w320/ca.png',
+      alt: 'Flag of Canada',
+    },
+    latlng: [45.42, -75.7],
+    languages: { en: 'English', fr: 'French' },
+    currencies: { CAD: { name: 'Canadian dollar', symbol: '$' } },
+    timezones: ['UTC-08:00', 'UTC-07:00'],
+    borders: ['USA'],
+    tld: ['.ca'],
+    unMember: true,
+    landlocked: false,
+    maps: { googleMaps: 'https://maps.example/ca' },
+  })
+})
+
+test('REST Countries invalid and missing fields are omitted for fallback merging', () => {
+  const country = normalizeCountryRecord({
+    names: { common: 'Testland' },
+    codes: { alpha_3: 'TST', alpha_2: 'TS' },
+    area: { kilometers: -1 },
+    capitals: [],
+    timezones: [],
+  })
+  assert.ok(country)
+  assert.equal('area' in country, false)
+  assert.equal('capital' in country, false)
+  assert.equal('timezones' in country, false)
+})
+
 test('sitemap includes /time-travel and every route', () => {
   assert.ok(sitemap.includes('<loc>/time-travel</loc>'))
+  assert.ok(sitemap.includes('<loc>/directory</loc>'))
+  assert.ok(sitemap.includes('<loc>/privacy</loc>'))
   const count = (sitemap.match(/<loc>/g) || []).length
-  assert.equal(count, 202)
+  assert.equal(count, 280)
 })

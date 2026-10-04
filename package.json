@@ -13,24 +13,33 @@
     "typecheck": "tsc -b --force",
     "check": "node scripts/check-i18n.mjs && node scripts/check-css.mjs",
     "data:atlas": "node scripts/build-atlas.mjs",
+    "data:countries": "node scripts/sync-countries.mjs",
     "sitemap": "node scripts/build-sitemap.mjs --",
     "test": "node --test",
-    "lint": "node -e \"console.log('lint placeholder: ESLint arrives in W12')\""
+    "test:e2e": "playwright test",
+    "lint": "eslint ."
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"
   },
+  "allowScripts": {
+    "esbuild@0.25.12": true
+  },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.50.0",
     "@types/node": "^24.0.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.0.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.0.0",
+    "typescript-eslint": "^8.0.0",
     "typescript": "~5.6.2",
     "vite": "^6.0.1"
-  },
-  "allowScripts": {
-    "esbuild@0.25.12": true
   }
 }

@@ -11,8 +11,8 @@
  *   SITE / SITE_URL environment variable
  * A leading `--` (as inserted by `npm run`) is ignored.
  *
- * Emits 202 URLs: `/`, `/world`, `/time-travel`, every country at
- * `/country/:cca3`, plus landmark and nature pages.
+ * Emits the static routes, all bundled country records, and landmark/nature
+ * detail pages.
  */
 import fs from 'fs';
 import path from 'path';
@@ -22,7 +22,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 
 const PUBLIC_DIR = path.join(rootDir, 'public');
-const ATLAS_FILE = path.join(PUBLIC_DIR, 'data', 'countries-110m.json');
+const COUNTRIES_FILE = path.join(PUBLIC_DIR, 'data', 'countries.json');
 const SITEMAP_FILE = path.join(PUBLIC_DIR, 'sitemap.xml');
 const ROBOTS_FILE = path.join(PUBLIC_DIR, 'robots.txt');
 
@@ -92,13 +92,13 @@ function normalizeSite(url) {
 /* ------------------------------------------------------------------ */
 
 function loadCountryCodes() {
-  if (!fs.existsSync(ATLAS_FILE)) return [];
+  if (!fs.existsSync(COUNTRIES_FILE)) return [];
   try {
-    const atlas = JSON.parse(fs.readFileSync(ATLAS_FILE, 'utf8'));
+    const countries = JSON.parse(fs.readFileSync(COUNTRIES_FILE, 'utf8'));
     const codes = [];
     const seen = new Set();
-    for (const shape of atlas.shapes || []) {
-      const code = shape && shape.cca3 ? String(shape.cca3).toUpperCase() : '';
+    for (const country of Array.isArray(countries) ? countries : []) {
+      const code = country && country.cca3 ? String(country.cca3).toUpperCase() : '';
       if (code && !seen.has(code)) {
         seen.add(code);
         codes.push(code);
@@ -106,7 +106,7 @@ function loadCountryCodes() {
     }
     return codes;
   } catch (err) {
-    console.warn(`Could not read atlas (${ATLAS_FILE}): ${err.message}`);
+    console.warn(`Could not read country data (${COUNTRIES_FILE}): ${err.message}`);
     return [];
   }
 }
@@ -122,7 +122,12 @@ function buildUrls(site) {
 
   add('/', 'weekly', '1.0');
   add('/world', 'weekly', '0.9');
+  add('/directory', 'weekly', '0.8');
+  add('/landmarks', 'weekly', '0.8');
+  add('/nature', 'weekly', '0.8');
   add('/time-travel', 'monthly', '0.6');
+  add('/privacy', 'yearly', '0.3');
+  add('/terms', 'yearly', '0.3');
 
   for (const code of codes) add(`/country/${code}`, 'monthly', '0.7');
   for (const slug of LANDMARKS) add(`/landmark/${slug}`, 'monthly', '0.6');
@@ -185,8 +190,8 @@ function main() {
 
   console.log(`Wrote ${urls.length} URLs to ${SITEMAP_FILE}`);
   console.log(`Wrote ${ROBOTS_FILE}`);
-  if (urls.length !== 202) {
-    console.warn(`Warning: expected 202 URLs, generated ${urls.length}`);
+  if (urls.length !== 280) {
+    console.warn(`Warning: expected 280 URLs, generated ${urls.length}`);
   }
 }
 

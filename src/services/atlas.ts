@@ -93,12 +93,18 @@ export function findShapeByCca3(
   return atlas.shapes.find((shape) => shape.cca3.toUpperCase() === code)
 }
 
+let countriesCache: { atlas: Atlas; countries: GlobeCountry[] } | null = null
+
 /**
  * Build the list of countries with globe-fillable rings.
  * Shapes without rings (rare) are skipped because they cannot be filled.
  */
 export function globeCountries(atlas: Atlas | null | undefined): GlobeCountry[] {
   if (!atlas || !Array.isArray(atlas.shapes)) return []
+  // Decoding ~180 shapes' rings is not free; cache by atlas identity so every
+  // consumer (Globe, World, panels) shares one decode instead of redoing it.
+  if (countriesCache && countriesCache.atlas === atlas) return countriesCache.countries
+
   const countries: GlobeCountry[] = []
   for (const shape of atlas.shapes) {
     if (!shapeHasRings(shape)) continue
@@ -113,6 +119,7 @@ export function globeCountries(atlas: Atlas | null | undefined): GlobeCountry[] 
   // Descending rank: hit-testing walks the list in reverse so small
   // countries win over large neighbours, and labels are placed biggest-first.
   countries.sort((a, b) => b.rank - a.rank)
+  countriesCache = { atlas, countries }
   return countries
 }
 
@@ -125,6 +132,85 @@ export async function loadAtlas(url: string = ATLAS_URL, signal?: AbortSignal): 
   return (await response.json()) as Atlas
 }
 
+/* ------------------------------------------------------------------ */
+/* Shared atlas store: one fetch + one decode for the whole app.        */
+/* ------------------------------------------------------------------ */
+
+export type AtlasState = {
+  atlas: Atlas | null
+  loading: boolean
+  error: string | null
+}
+
+const initialAtlasState: AtlasState = { atlas: null, loading: false, error: null }
+
+let atlasCache: Atlas | null = null
+let atlasLoad: Promise<Atlas> | null = null
+let atlasState: AtlasState = initialAtlasState
+const atlasListeners = new Set<() => void>()
+
+function emitAtlas(next: AtlasState): void {
+  atlasState = next
+  for (const listener of atlasListeners) listener()
+}
+
+/** Subscribe to shared atlas state (for `useSyncExternalStore`). */
+export function subscribeAtlas(listener: () => void): () => void {
+  atlasListeners.add(listener)
+  return () => {
+    atlasListeners.delete(listener)
+  }
+}
+
+/** Current shared atlas state. Returns a stable reference between updates. */
+export function getAtlasSnapshot(): AtlasState {
+  return atlasState
+}
+
+/** State used during server rendering / hydration before any fetch starts. */
+export function getAtlasServerSnapshot(): AtlasState {
+  return initialAtlasState
+}
+
+/**
+ * Load the atlas exactly once per page load.
+ *
+ * Concurrent callers share the same in-flight promise; later callers get the
+ * cached value. On failure the in-flight promise is cleared so a subsequent
+ * call can retry, and the error is surfaced through the shared store.
+ */
+export function loadAtlasOnce(url: string = ATLAS_URL): Promise<Atlas> {
+  if (atlasCache) return Promise.resolve(atlasCache)
+  if (atlasLoad) return atlasLoad
+
+  emitAtlas({ atlas: atlasCache, loading: true, error: null })
+
+  atlasLoad = loadAtlas(url).then(
+    (atlas) => {
+      atlasCache = atlas
+      atlasLoad = null
+      emitAtlas({ atlas, loading: false, error: null })
+      return atlas
+    },
+    (err: unknown) => {
+      atlasLoad = null
+      const message = err instanceof Error ? err.message : 'Failed to load atlas'
+      emitAtlas({ atlas: atlasCache, loading: false, error: message })
+      throw err
+    }
+  )
+
+  return atlasLoad
+}
+
+/** Reset the atlas store (used for an explicit retry). */
+export function clearAtlasCache(): void {
+  atlasCache = null
+  atlasLoad = null
+  countriesCache = null
+  emitAtlas(initialAtlasState)
+}
+
 export default {
   ATLAS_Q,
   ATLAS_URL,
@@ -134,4 +220,9 @@ export default {
   globeCountries,
   findShapeByCca3,
   loadAtlas,
+  loadAtlasOnce,
+  subscribeAtlas,
+  getAtlasSnapshot,
+  getAtlasServerSnapshot,
+  clearAtlasCache,
 }

@@ -91,7 +91,7 @@ export default function MiniMap({
 
   return (
     <svg
-      role="img"
+      role="group"
       aria-label={ariaLabel}
       viewBox={`0 0 ${width} ${mapHeight}`}
       preserveAspectRatio="xMidYMid meet"

@@ -1,55 +1,31 @@
-import { useEffect, useState } from 'react'
-import type { Atlas } from '../types'
+import { useEffect, useSyncExternalStore } from 'react'
+import {
+  getAtlasServerSnapshot,
+  getAtlasSnapshot,
+  loadAtlasOnce,
+  subscribeAtlas,
+  type AtlasState,
+} from '../services/atlas'
 
-const ATLAS_URL = '/data/countries-110m.json'
+export type UseAtlasResult = AtlasState
 
-export type UseAtlasResult = {
-  atlas: Atlas | null
-  loading: boolean
-  error: string | null
-}
-
+/**
+ * Shared atlas accessor.
+ *
+ * The fetch/decode lives in `services/atlas` so every component subscribes to
+ * the same module-level cache instead of issuing its own request. Concurrent
+ * mounts dedupe onto one in-flight promise; a warm cache resolves immediately.
+ */
 export function useAtlas(): UseAtlasResult {
-  const [atlas, setAtlas] = useState<Atlas | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const state = useSyncExternalStore(subscribeAtlas, getAtlasSnapshot, getAtlasServerSnapshot)
 
   useEffect(() => {
-    let mounted = true
-
-    async function loadAtlas() {
-      try {
-        setLoading(true)
-        setError(null)
-
-        const response = await fetch(ATLAS_URL)
-        if (!response.ok) {
-          throw new Error(`Failed to load atlas: ${response.status} ${response.statusText}`)
-        }
-
-        const data = (await response.json()) as Atlas
-        if (mounted) {
-          setAtlas(data)
-        }
-      } catch (err) {
-        if (mounted) {
-          setError(err instanceof Error ? err.message : 'Failed to load atlas')
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false)
-        }
-      }
-    }
-
-    void loadAtlas()
-
-    return () => {
-      mounted = false
-    }
+    // Errors are surfaced through the store; swallow the rejection here so a
+    // failed load does not become an unhandled promise rejection.
+    void loadAtlasOnce().catch(() => {})
   }, [])
 
-  return { atlas, loading, error }
+  return state
 }
 
 export default useAtlas

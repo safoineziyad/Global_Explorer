@@ -42,6 +42,8 @@ type GlobeProps = {
   atlas?: Atlas | null
   /** Emoji pins drawn on the near hemisphere (skipped in low-power mode). */
   markers?: GlobeMarker[]
+  /** Optional initial camera target as [longitude, latitude]. */
+  initialCenter?: [number, number]
   onCountryClick?: (cca3: string) => void
   onMarkerClick?: (marker: GlobeMarker) => void
   onHoverChange?: (shape: Hovered | null) => void
@@ -355,6 +357,7 @@ export default function Globe({
   countries,
   atlas = null,
   markers = [],
+  initialCenter,
   onCountryClick,
   onMarkerClick,
   onHoverChange,
@@ -371,8 +374,10 @@ export default function Globe({
 
   const [size, setSize] = useState({ width: 800, height: 600 })
   const [zoom, setZoom] = useState(MIN_ZOOM)
-  const [centerLon, setCenterLon] = useState(DEFAULT_VIEW_LNG)
-  const [centerLat, setCenterLat] = useState(DEFAULT_VIEW_LAT)
+  const [centerLon, setCenterLon] = useState(initialCenter?.[0] ?? DEFAULT_VIEW_LNG)
+  const [centerLat, setCenterLat] = useState(initialCenter?.[1] ?? DEFAULT_VIEW_LAT)
+  const initialCenterLon = initialCenter?.[0]
+  const initialCenterLat = initialCenter?.[1]
   const [hovered, setHovered] = useState<Hovered | null>(null)
   const [hoveredMarker, setHoveredMarker] = useState<GlobeMarker | null>(null)
   const [hoverPoint, setHoverPoint] = useState<[number, number]>([0, 0])
@@ -392,6 +397,12 @@ export default function Globe({
 
   hoveredRef.current = hovered
   hoveredMarkerRef.current = hoveredMarker
+
+  useEffect(() => {
+    if (initialCenterLon === undefined || initialCenterLat === undefined) return
+    setCenterLon(normalizeLon(initialCenterLon))
+    setCenterLat(clampLat(initialCenterLat))
+  }, [initialCenterLon, initialCenterLat])
 
   /* ----------------------------- data ----------------------------- */
 
@@ -736,7 +747,13 @@ export default function Globe({
   useEffect(() => {
     let raf = 0
     let last = 0
+    let inViewport = true
+    let pageVisible = document.visibilityState === 'visible'
+    const schedule = () => {
+      if (inViewport && pageVisible) raf = requestAnimationFrame(loop)
+    }
     const loop = (now: number) => {
+      if (!inViewport || !pageVisible) return
       const dt = last ? now - last : 0
       last = now
       // Only marker hover pauses the spin; country hover must not.
@@ -759,10 +776,39 @@ export default function Globe({
           console.error('[Globe] render failed', err)
         }
       }
-      raf = requestAnimationFrame(loop)
+      schedule()
     }
-    raf = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(raf)
+    const onVisibilityChange = () => {
+      pageVisible = document.visibilityState === 'visible'
+      if (pageVisible) {
+        last = 0
+        dirtyRef.current = true
+        schedule()
+      } else {
+        cancelAnimationFrame(raf)
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    const canvas = canvasRef.current
+    const observer = canvas && typeof IntersectionObserver !== 'undefined'
+      ? new IntersectionObserver(([entry]) => {
+          inViewport = entry.isIntersecting
+          if (inViewport) {
+            last = 0
+            dirtyRef.current = true
+            schedule()
+          } else {
+            cancelAnimationFrame(raf)
+          }
+        })
+      : null
+    if (canvas) observer?.observe(canvas)
+    schedule()
+    return () => {
+      cancelAnimationFrame(raf)
+      observer?.disconnect()
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
   }, [autoSpin, reduceMotion])
 
   /* --------------------------- interaction ------------------------ */

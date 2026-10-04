@@ -141,24 +141,36 @@ works with no network and is never CORS-blocked:
   population, area, coordinates, languages, currencies, borders, calling codes,
   map links), served from the app's own origin and fetched on demand by
   `src/services/restCountries.ts`.
-- `src/data/countries.ts` — **20 hand-curated records** that take precedence
-  over the bundled data (they also carry timezones and richer flags).
+- `src/data/countries.ts` — **20 hand-curated fallback records** used if the
+  bundled file cannot be loaded.
 
-The live API is **opt-in**. REST Countries deprecated v1–v4 (they now return a
-`success: false` body for every request) and v5 requires an API key, so the app
-only calls it when `VITE_REST_COUNTRIES_KEY` is defined at build time:
+The live REST Countries v5 API is opt-in. `npm run dev`/`npm run build` can use
+`VITE_REST_COUNTRIES_KEY` from your ignored `.env` file. The `VITE_` prefix
+means the key is exposed in browser JavaScript; only use a public/restricted
+key, and use a server-side proxy for any secret production credential:
 
 ```bash
-VITE_REST_COUNTRIES_KEY=your_key npm run build
+Copy-Item .env.example .env
+# Add a valid public/restricted key to .env, then:
+npm run dev
 ```
 
-When a key is present the app queries `https://restcountries.com/v5` and merges
-the result over the bundled data; otherwise it uses the bundled data directly
-(no failed requests, no console noise). The globe does **not** restrict which
-countries are clickable — any country Natural Earth draws is clickable and now
-resolves to real details offline. Antarctica (`ATA`) has no capital/population,
-so it intentionally shows the `No data available` note while remaining
-clickable from both maps.
+With a key configured, country pages and the directory request normalized v5
+data and merge it over the bundled fallback. Successful responses are cached
+in memory and local storage for 24 hours. Quota, authorization, network, and
+rate-limit failures retain the bundled records and expose an explicit retry in
+the country directory/details. No-key builds use the local data without a
+failed API request.
+
+To refresh the committed offline dataset, set the same variable in ignored
+`.env` and run `npm run data:countries`. The script validates the response
+before writing, preserves records not returned by the provider, and never
+prints the key. It does not run as part of build/test, so a developer must
+intentionally update the dataset.
+
+Never commit `.env` or put the API key value in code or documentation. The
+credential previously pasted into chat should be revoked/rotated if it is an
+active key.
 
 > The bundled dataset is derived from
 > [`mledoze/countries`](https://github.com/mledoze/countries) (the upstream
@@ -169,14 +181,23 @@ clickable from both maps.
 
 ## Routes / sitemap
 
-- `/` — landing (world)
+- `/` — landing page with unified place search and browse collections
 - `/world` — globe + flat map
+- `/directory` — searchable country directory (including countries without map geometry)
+- `/landmarks` — searchable landmark collection with wonder-list filters
+- `/nature` — searchable nature collection
 - `/country/:cca3` — country detail
 - `/landmark/:slug`, `/nature/:slug` — spot pages
 - `/time-travel` — historical timeline
+- `/privacy`, `/terms` — legal information
 - `*` — 404 catch-all
 
-`scripts/build-sitemap.mjs` emits **202 URLs** and includes `/time-travel`:
+All routes share the site navigation and footer. Content pages are loaded with
+route-level code splitting. The Explorer panel remains available across routes.
+
+`scripts/build-sitemap.mjs` emits **280 URLs** using all bundled country
+records (including places without low-resolution atlas geometry), listing and
+legal routes, and detail pages:
 
 ```bash
 npm run sitemap -- --site=https://example.com
@@ -213,7 +234,8 @@ panels.
 🚶 Walk · 🚗 Road · ✈️ World · 🚁 Drone · 🛰️ Satellite · ⏳ History
 
 Selecting a mode changes the discovery radius used by the nearby layers and
-counts; choosing ⏳ History also enables the Time Travel layer.
+counts; Drone sets 2 km and Satellite sets 25 km. These modes do not display
+aerial or satellite imagery. Choosing ⏳ History also enables the Time Travel layer.
 
 ### Panels
 
@@ -225,9 +247,20 @@ counts; choosing ⏳ History also enables the Time Travel layer.
 - **Time Machine** — preset eras: 2026 / 1950 / 1800 / 1200 / Ancient.
 - **Geographic Discovery** — "What was discovered here?" and "How did it change
   the world?", with an impact chain.
-- **AI Explorer** — "I'm here. Surprise me." plus an Explore button.
-- **Explorer XP** — `EXPLORER LEVEL` with Countries / Landmarks / Discoveries /
-  Cultures / Routes.
+- **Demo suggestions** — deterministic generated examples, not AI or verified
+  nearby places; Explore opens the suggested coordinates on the globe.
+- **Explorer XP** — local progress counts based on countries and landmarks the
+  user has opened. Other categories remain zero until real interactions exist.
+
+Nearby stories, category counts and generated suggestions are prominently
+labelled **Demo / Simulated Data**. They are not factual local listings.
+Geolocation is optional and browser-permission-based; coordinates remain in
+memory for the current session.
+
+Landmarks carry explicit New Seven Wonders and Ancient Wonders tags. Current
+coverage includes all seven New Seven Wonders but only the Great Pyramid entry
+for the Ancient Wonders. Natural wonder entries are labelled as curated
+highlights, not a complete authoritative list.
 
 ### Time Travel route
 
@@ -274,11 +307,22 @@ names. This is documented rather than silently shipped. Other known gaps:
 - Only the geometry rings are used for the globe; the `d` path includes all
   source rings, but the 110m dataset is coarse.
 - Landmark and nature `type` fields are English-only.
-- The 110m dataset omits many microstates and small territories.
+- Landmark and nature descriptions/facts remain English-only; navigation and
+  Explorer notices are translated, but the full place-data migration is not
+  complete.
+- The 110m dataset omits many microstates and small territories. The country
+  directory links to all 250 bundled records, while the globe's accessible list
+  covers only drawable atlas shapes.
 - Bundled country metadata is English-only. The upstream source carries
   French/Arabic translations, but they are not bundled yet; the 20 curated
   records and the worldwide dataset both use English names.
 - Bundled population values are a World Bank snapshot and may be slightly out of date.
+- The invalid Svalbard/Jan Mayen area has been corrected; the worldwide data
+  still has no bundled timezone arrays, so country pages now state that the
+  field is unavailable rather than omitting it.
+- Population is still missing for some inhabited territories and special
+  regions (including Taiwan, Kosovo and Vatican City). These are not filled
+  with unsourced estimates. Macau has no separate capital in the source data.
 
 ## Scripts
 

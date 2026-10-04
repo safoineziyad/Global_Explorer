@@ -110,3 +110,33 @@ recorded here.
 - **D1-2 — Scope discipline.** Workers implement CRITICAL/HIGH first, then MEDIUM
   where feasible; LOW / NICE-TO-HAVE items are logged in `BACKLOG.md` (permitted
   by the Definition of Done) rather than risking the regression baseline.
+
+### W5 — Error handling / resilience decisions
+
+- **Future flags over a v7 dependency bump (`audit-*` Part G #6/#7).** The app runs
+  `react-router-dom@6.30.6` (package.json declares `^6.28.0`) even though the shared
+  context calls it "v7". Rather than force an unvetted major upgrade, W5 set the two
+  supported opt-in flags on `BrowserRouter`
+  (`future={{ v7_startTransition: true, v7_relativeSplatPath: true }}`). This removes
+  both `⚠️ React Router Future Flag Warning` messages (in `react-router/dist/index.js`,
+  `logV6DeprecationWarnings` only logs when those keys are `undefined`) with **no
+  package.json change**, preserving Part G #7 (minimal runtime deps). No W2 request
+  needed.
+
+- **Missing vs failed country (`audit-country-error-vs-missing`).** `Country.tsx`
+  (W9) owns the distinction; W5 filed REQ-1. Contract: unknown `cca3` (lookup resolves
+  `null` / no bundled record) → `errors.countryNotFound`; network/HTTP failure (fetch
+  rejects or non-OK) → `errors.restCountriesFailed` with a Retry action. The W5
+  `ErrorBoundary` only catches thrown render errors and is intentionally not used for
+  data-fetch outcomes.
+
+- **Offline is advisory (`audit-offline`).** `OfflineBanner` reads `navigator.onLine`
+  plus `online`/`offline` events and only informs; data services already fall back to
+  bundled JSON (`loadBundledCountries` catches fetch failures), so no fetch is blocked
+  and there is no hard dependency on connectivity.
+
+- **500 vs ErrorBoundary (`audit-error-boundary`).** A class `ErrorBoundary` wraps the
+  whole tree in `main.tsx` (and the route tree in `App.tsx`); `/500` is an explicit,
+  linkable route for hosts/tests. The boundary fallback resolves strings via the
+  exported `translate`/`detectLocale` so it still renders if the provider itself
+  crashes.

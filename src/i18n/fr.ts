@@ -1,5 +1,5 @@
 // French translations for Global Explorer.
-// Key tree must stay identical to the other locale files (220 keys).
+// Key tree must stay identical to the other locale files (222 keys).
 const fr = {
   "app": {
     "name": "Global Explorer"
@@ -244,6 +244,8 @@ const fr = {
     "updateAvailable": "Nouveau contenu disponible",
     "update": "Mettre à jour",
     "install": "Installer",
+    "installHint": "Installez cette application pour un accès plus rapide, même hors ligne.",
+    "iosInstallHint": "Sur iPhone ou iPad, touchez Partager puis Sur l’écran d’accueil.",
     "installed": "Installé",
     "dismiss": "Ignorer",
     "reload": "Recharger",

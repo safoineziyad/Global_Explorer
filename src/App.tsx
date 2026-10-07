@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import ErrorBoundary from './components/ErrorBoundary'
 import OfflineBanner from './components/OfflineBanner'
+import PwaPrompt from './components/PwaPrompt'
 import ExplorerLauncher from './components/ExplorerLauncher'
 import Layout from './components/Layout'
 
@@ -22,6 +23,7 @@ function App() {
   return (
     <ErrorBoundary>
       <OfflineBanner />
+      <PwaPrompt />
       <Suspense fallback={<p className="route-loading" role="status">Loading page…</p>}>
         <Routes>
           <Route element={<Layout />}>

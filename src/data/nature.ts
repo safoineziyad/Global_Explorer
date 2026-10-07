@@ -1,4 +1,11 @@
 // Curated natural-wonder content. Slugs are stable and used by routes/sitemap.
+//
+// Localized copies of every user-visible string live in src/i18n/content.ts.
+// The English text here is the reference wording; this module stays a plain,
+// importable data source holding structural facts (codes, coordinates, list
+// membership) plus that English reference text.
+
+import type { RecordConfidence, Source } from './sources'
 
 export type NatureLocation = {
   lat: number
@@ -20,6 +27,16 @@ export type NatureSite = {
   activities: string[]
   facts: string[]
   wonderLists?: ('natural-highlights')[]
+  /**
+   * Whether the site sits on an official natural-wonders register. Curated
+   * highlights that are merely widely described as "world wonders" leave this
+   * undefined/false, so the UI never implies official status.
+   */
+  officialWonderList?: boolean
+  /** How firmly the record can be stated as fact; drives qualified wording. */
+  confidence?: RecordConfidence
+  /** Where this record's coordinates and figures were verified. */
+  sources?: Source[]
 }
 
 export const natureSites: NatureSite[] = [
@@ -43,6 +60,13 @@ export const natureSites: NatureSite[] = [
       'Millions of species live here, many still undocumented.',
       'Deforestation is a major threat to its ecosystems.',
     ],
+    sources: [
+      {
+        label: 'WWF — Amazon rainforest',
+        url: 'https://www.worldwildlife.org/places/amazon',
+        checked: '2026-10-04',
+      },
+    ],
   },
   {
     slug: 'grand-canyon',
@@ -65,6 +89,13 @@ export const natureSites: NatureSite[] = [
       'It is one of the Seven Natural Wonders of the World.',
     ],
     wonderLists: ['natural-highlights'],
+    sources: [
+      {
+        label: 'National Park Service — Grand Canyon',
+        url: 'https://www.nps.gov/grca/index.htm',
+        checked: '2026-10-04',
+      },
+    ],
   },
   {
     slug: 'niagara-falls',
@@ -85,6 +116,13 @@ export const natureSites: NatureSite[] = [
       'The falls have retreated several kilometres over thousands of years.',
       'Hydroelectric stations divert water for power generation.',
       'The Canadian Horseshoe Falls is the widest of the three.',
+    ],
+    sources: [
+      {
+        label: 'Niagara Parks Commission',
+        url: 'https://www.niagarafalls.ca/',
+        checked: '2026-10-04',
+      },
     ],
   },
   {
@@ -107,6 +145,13 @@ export const natureSites: NatureSite[] = [
       'The park is a UNESCO World Heritage Site.',
       'Predators gather along the Grumeti and Mara rivers during crossings.',
     ],
+    sources: [
+      {
+        label: 'UNESCO World Heritage Centre — Serengeti',
+        url: 'https://whc.unesco.org/en/list/156/',
+        checked: '2026-10-04',
+      },
+    ],
   },
   {
     slug: 'galapagos',
@@ -127,6 +172,13 @@ export const natureSites: NatureSite[] = [
       'Darwin visited in 1835 aboard HMS Beagle.',
       'Many species are found nowhere else on Earth.',
       'Strict visitor rules help protect the fragile ecosystem.',
+    ],
+    sources: [
+      {
+        label: 'UNESCO World Heritage Centre — Galapagos Islands',
+        url: 'https://whc.unesco.org/en/list/146/',
+        checked: '2026-10-04',
+      },
     ],
   },
   {
@@ -150,6 +202,13 @@ export const natureSites: NatureSite[] = [
       'It is a UNESCO World Heritage Site.',
     ],
     wonderLists: ['natural-highlights'],
+    sources: [
+      {
+        label: 'UNESCO World Heritage Centre — Great Barrier Reef',
+        url: 'https://whc.unesco.org/en/list/154/',
+        checked: '2026-10-04',
+      },
+    ],
   },
   {
     slug: 'yellowstone',
@@ -170,6 +229,13 @@ export const natureSites: NatureSite[] = [
       'The park sits on a dormant supervolcano.',
       'It was the first national park in the world.',
       'Wolves were reintroduced in 1995 after decades of absence.',
+    ],
+    sources: [
+      {
+        label: 'National Park Service — Yellowstone',
+        url: 'https://www.nps.gov/yell/index.htm',
+        checked: '2026-10-04',
+      },
     ],
   },
   {
@@ -192,6 +258,13 @@ export const natureSites: NatureSite[] = [
       'The Icefields Parkway links Banff with Jasper.',
       'Hot springs in the park helped inspire its creation.',
     ],
+    sources: [
+      {
+        label: 'Parks Canada — Banff National Park',
+        url: 'https://parks.canada.ca/pn-np/ab/banff',
+        checked: '2026-10-04',
+      },
+    ],
   },
   {
     slug: 'patagonia',
@@ -213,6 +286,13 @@ export const natureSites: NatureSite[] = [
       'The Perito Moreno Glacier is one of the few that advances.',
       'Its name comes from the word used by Magellan for local inhabitants.',
     ],
+    sources: [
+      {
+        label: 'UNESCO World Heritage Centre — Los Glaciares',
+        url: 'https://whc.unesco.org/en/list/145/',
+        checked: '2026-10-04',
+      },
+    ],
   },
   {
     slug: 'yosemite',
@@ -233,6 +313,217 @@ export const natureSites: NatureSite[] = [
       'Yosemite Falls is among the tallest waterfalls in North America.',
       'Giant sequoias here can live for over 3,000 years.',
       'The park helped inspire the modern conservation movement.',
+    ],
+    // Yosemite is emphatically a world-class natural wonder, but it is not on
+    // any published natural-wonders register we can cite, so it must not claim
+    // official status. Left undefined (same as `amazon`) rather than asserted.
+    officialWonderList: false,
+    confidence: 'verified',
+    sources: [
+      {
+        label: 'National Park Service — Yosemite',
+        url: 'https://www.nps.gov/yose/index.htm',
+        checked: '2026-10-04',
+      },
+      {
+        label: 'UNESCO World Heritage Centre — Yosemite National Park',
+        url: 'https://whc.unesco.org/en/list/308/',
+        checked: '2026-10-04',
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  /* Natural-wonder highlights.                                          */
+  /* This is a curated selection, not an official or complete canon — see  */
+  /* WONDER_LIST_META['natural-highlights'] and each record's              */
+  /* `officialWonderList` flag.                                          */
+  /* ------------------------------------------------------------------ */
+
+  {
+    slug: 'victoria-falls',
+    name: 'Victoria Falls',
+    country: 'ZWE',
+    location: { lat: -17.9243, lng: 25.8572 },
+    type: 'Waterfall',
+    area: 'About 1,088 m wide and 108 m high at the main falls',
+    established: 'Mosi-oa-Tunya National Park since 2019',
+    description:
+      'Victoria Falls is a broad curtain of water on the Zambezi River at the border of Zambia and Zimbabwe. Its local name, Mosi-oa-Tunya, is usually translated as “the smoke that thunders”.',
+    wildlife: ['African elephant', 'Cape buffalo', 'Lion', 'White rhinoceros', 'Giraffe', 'Pygmy hippo'],
+    climate: 'Tropical savanna, with the main rains from November to March',
+    bestTime: 'May to September, when the falls are at their widest',
+    activities: ['Canoeing the upper Zambezi', 'Rafting below the falls', 'Bungee jumping', 'Game viewing', 'Sunset walks'],
+    facts: [
+      'It is roughly twice as wide as Niagara Falls, though not as high.',
+      'The local name Mosi-oa-Tunya is usually translated as “the smoke that thunders”.',
+      'The falls sit in a basalt gorge left by ancient lava flows.',
+      'Its spray can be heard before the falls themselves come into view.',
+    ],
+    wonderLists: ['natural-highlights'],
+    officialWonderList: true,
+    confidence: 'verified',
+    sources: [
+      {
+        label: 'UNESCO World Heritage Centre — Mosi-oa-Tunya/Victoria Falls',
+        url: 'https://whc.unesco.org/en/list/364/',
+        checked: '2026-10-04',
+      },
+    ],
+  },
+  {
+    slug: 'iguazu-falls',
+    name: 'Iguazú Falls',
+    country: 'ARG',
+    location: { lat: -25.6867, lng: -54.4448 },
+    type: 'Waterfall',
+    area: 'About 2,700 m of waterfall along the Argentina–Brazil border',
+    established: 'National park since 1902; UNESCO since 1986',
+    description:
+      'Iguazú Falls is a long series of cataracts on the Iguazú River on the border of Argentina and Brazil. In Guaraní, “iguazú” is usually translated as “big water”.',
+    wildlife: ['Jaguar', 'Black caiman', 'Giant anteater', 'Howler monkey', 'Capybara', 'Helmeted woodpecker'],
+    climate: 'Subtropical and humid, with rain throughout the year',
+    bestTime: 'April to June and September to November',
+    activities: ['Upper and lower circuit trails', 'Train to the falls', 'Boat rides', 'Wildlife watching', 'Birding'],
+    facts: [
+      'The Devil’s Throat is the largest single drop in the system.',
+      'The name is commonly translated from Guaraní as “big water”.',
+      'Many plants and animals around the falls occur nowhere else on Earth.',
+      'The falls can be visited from either the Argentine or the Brazilian side.',
+    ],
+    wonderLists: ['natural-highlights'],
+    officialWonderList: true,
+    confidence: 'verified',
+    sources: [
+      {
+        label: 'UNESCO World Heritage Centre — Iguazú Falls',
+        url: 'https://whc.unesco.org/en/list/145/',
+        checked: '2026-10-04',
+      },
+    ],
+  },
+  {
+    slug: 'lake-baikal',
+    name: 'Lake Baikal',
+    country: 'RUS',
+    location: { lat: 53.5587, lng: 108.165 },
+    type: 'Freshwater lake',
+    area: 'About 31,722 km²',
+    established: 'UNESCO World Heritage Site since 1998',
+    description:
+      'Lake Baikal in southern Siberia is the deepest lake on Earth and holds roughly a fifth of the world’s unfrozen fresh water. Large parts of its bed lie well below the surrounding land, in a rift basin.',
+    wildlife: ['Baikal seal', 'Baikal omul', 'Baikal gray wolf', 'Red deer', 'Buryat crane'],
+    climate: 'Continental extreme, with very severe winters and deep ice',
+    bestTime: 'June to September; ice caves in winter',
+    activities: ['Winter ice caves', 'Boat and hydrofoil trips', 'Shoreline hiking', 'Seal observation', 'Spring ice photography'],
+    facts: [
+      'It reaches a depth of about 1,642 metres.',
+      'It is the largest freshwater lake by volume in the world.',
+      'Around 80% of its animal life is found nowhere else.',
+      'Its winter ice can reach about a metre thick.',
+    ],
+    wonderLists: ['natural-highlights'],
+    officialWonderList: true,
+    confidence: 'verified',
+    sources: [
+      {
+        label: 'UNESCO World Heritage Centre — Lake Baikal',
+        url: 'https://whc.unesco.org/en/list/208/',
+        checked: '2026-10-04',
+      },
+    ],
+  },
+  {
+    slug: 'halong-bay',
+    name: 'Hạ Long Bay',
+    country: 'VNM',
+    location: { lat: 20.9101, lng: 107.1839 },
+    type: 'Bay of limestone karst islands',
+    area: 'About 1,553 km²',
+    established: 'UNESCO World Heritage Site since 1994',
+    description:
+      'Hạ Long Bay is a UNESCO World Heritage Site in northern Vietnam, famous for the thousands of limestone islands and islets that rise from the sea. Its name is usually translated as “descending dragon bay”.',
+    wildlife: ['Whale shark', 'Catfish', 'Dolphin', 'Asian black bear', 'Oriental white stork'],
+    climate: 'Monsoonal, with wet summers and cooler, drier winters',
+    bestTime: 'October to December and March to May',
+    activities: ['Overnight boat cruises', 'Kayaking', 'Cave visits', 'Fishing villages', 'Bird watching'],
+    facts: [
+      'The bay contains more than 1,600 islands, islets and rock outcrops.',
+      'Its karst towers formed over hundreds of millions of years.',
+      'It is also written Ha Long Bay in international usage.',
+      'Fishing has shaped the bay’s communities for centuries.',
+    ],
+    wonderLists: ['natural-highlights'],
+    officialWonderList: true,
+    confidence: 'verified',
+    sources: [
+      {
+        label: 'UNESCO World Heritage Centre — Ha Long Bay',
+        url: 'https://whc.unesco.org/en/list/544/',
+        checked: '2026-10-04',
+      },
+    ],
+  },
+  {
+    slug: 'angel-falls',
+    name: 'Angel Falls',
+    country: 'VEN',
+    location: { lat: 5.9706, lng: -62.5281 },
+    type: 'Waterfall',
+    area: '979 m total drop; the longest uninterrupted descent',
+    established: 'Part of Canaima National Park, a UNESCO site since 2009',
+    description:
+      'Angel Falls is a waterfall in Canaima National Park, Venezuela, falling from the Auyán-tepui plateau. It is widely described as the world’s highest uninterrupted waterfall. The Pemón name Kerepakupai Merú is usually translated as “the deepest place on Earth”.',
+    wildlife: ['Spectacled bear', 'Orinoco crocodile', 'Harpy eagle', 'Golden lion tamarin'],
+    climate: 'Tropical and wet all year, with a rainier season',
+    bestTime: 'June to December',
+    activities: ['Airstrip landings on the tepui', 'River travel on the Caroní', 'Canoeing', 'Bird watching', 'Guided hikes'],
+    facts: [
+      'It drops 979 m in total, with an unbroken run of roughly 807 m.',
+      'It is named after aviator Jimmie Angel, who flew over it in 1933.',
+      'Its base is so remote that it can take days to reach by river.',
+      'The surrounding tepuis are among the oldest exposed rock formations on Earth.',
+    ],
+    // Curated highlight like the other entries in this section, but not on any
+    // register we can cite.
+    wonderLists: ['natural-highlights'],
+    officialWonderList: false,
+    confidence: 'verified',
+    sources: [
+      {
+        label: 'UNESCO World Heritage Centre — Canaima National Park',
+        url: 'https://whc.unesco.org/en/list/1126/',
+        checked: '2026-10-04',
+      },
+    ],
+  },
+  {
+    slug: 'sahara',
+    name: 'Sahara Desert',
+    country: 'DZA',
+    location: { lat: 25, lng: 13 },
+    type: 'Hot desert',
+    area: 'About 9,200,000 km²',
+    established: 'Protected areas established across the region',
+    description:
+      'The Sahara is the largest hot desert in the world, covering much of North Africa. Despite its reputation, a great deal of its surface is rocky desert rather than sand, and it has been far greener during earlier humid periods.',
+    wildlife: ['Fennec fox', 'Addax', 'Dromedary camel', 'Saharan cheetah', 'Scimitar oryx'],
+    climate: 'Hot desert, with very large differences between day and night',
+    bestTime: 'October to March, for cooler weather',
+    activities: ['Dune trekking', 'Oasis visits', 'Rock art sites', 'Night sky observing', 'Camel journeys'],
+    facts: [
+      'Its area is roughly comparable to that of the United States.',
+      'The largest dune fields lie in the south, in the Erg Chebbi and Erg Murzuk regions.',
+      'It has repeatedly been far greener during the African humid periods.',
+      'It is the largest hot desert, unlike the much colder Antarctic desert.',
+    ],
+    confidence: 'verified',
+    sources: [
+      {
+        label: 'NASA Earth Observatory',
+        url: 'https://earthobservatory.nasa.gov/',
+        checked: '2026-10-04',
+      },
     ],
   },
 ]

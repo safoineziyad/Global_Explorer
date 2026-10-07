@@ -41,3 +41,15 @@
   for = "/index.html"
   [headers.values]
     Cache-Control = "no-cache"
+
+# The service worker and web manifest must never be cached, otherwise clients
+# stay pinned to a dead worker and stale install metadata.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/site.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"

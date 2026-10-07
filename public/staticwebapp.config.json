@@ -27,6 +27,18 @@
       "headers": {
         "cache-control": "no-cache"
       }
+    },
+    {
+      "route": "/sw.js",
+      "headers": {
+        "cache-control": "no-cache, no-store, must-revalidate"
+      }
+    },
+    {
+      "route": "/site.webmanifest",
+      "headers": {
+        "cache-control": "no-cache, no-store, must-revalidate"
+      }
     }
   ]
 }

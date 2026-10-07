@@ -21,8 +21,9 @@ npm run check    # i18n key parity + CSS quality gate
 npm test         # Node's built-in test runner
 ```
 
-`npm run lint` is currently a placeholder; ESLint and Prettier are not yet
-configured.
+See [docs/PWA.md](./docs/PWA.md) for the exact steps to preview this website
+in an Android Studio emulator or install its production PWA in Chrome. This
+repository does not currently include a native Android/Capacitor project.
 
 ## Atlas
 

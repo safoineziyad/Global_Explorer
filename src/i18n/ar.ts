@@ -1,5 +1,5 @@
 // Arabic translations for Global Explorer.
-// Key tree must stay identical to the other locale files (220 keys).
+// Key tree must stay identical to the other locale files (222 keys).
 const ar = {
   "app": {
     "name": "المستكشف العالمي"
@@ -244,6 +244,8 @@ const ar = {
     "updateAvailable": "محتوى جديد متاح",
     "update": "تحديث",
     "install": "تثبيت",
+    "installHint": "ثبّت هذا التطبيق للوصول بشكل أسرع، حتى دون اتصال.",
+    "iosInstallHint": "على iPhone أو iPad، اضغط «مشاركة» ثم «إضافة إلى الشاشة الرئيسية».",
     "installed": "مثبّت",
     "dismiss": "تجاهل",
     "reload": "إعادة التحميل",

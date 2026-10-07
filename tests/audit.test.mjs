@@ -68,8 +68,8 @@ test('robinsonProject is finite across the grid and matches atlas anchors', () =
   assert.deepEqual(robinsonProject(0, -90, 1000, 500), [500, 500])
 })
 
-test('generateNearby stays inside the radius', () => {
-  const anchor = { lat: 48.8566, lng: 2.3522 }
+test('nearby lookup returns only verified places inside the radius', () => {
+  const anchor = { lat: landmarks.find((place) => place.slug === 'petra').location.lat, lng: landmarks.find((place) => place.slug === 'petra').location.lng }
   const radiusKm = 1
   const first = generateNearby(anchor, radiusKm)
   const second = generateNearby(anchor, radiusKm)
@@ -78,6 +78,8 @@ test('generateNearby stays inside the radius', () => {
   for (const d of first) {
     assert.ok(d.distanceM <= radiusKm * 1000, `distanceM ${d.distanceM}`)
     assert.ok(haversineKm(anchor, d) <= radiusKm + 0.02, `haversine ${haversineKm(anchor, d)}`)
+    assert.ok(d.slug)
+    assert.ok(d.sourceCount > 0)
   }
 })
 
@@ -88,7 +90,7 @@ test('every explorer mode maps to a positive radius', () => {
   }
 })
 
-test('wonder tags cover the New Seven and identify the current ancient-wonder gap', () => {
+test('wonder tags cover the New Seven and all seven Ancient Wonders', () => {
   const newSeven = landmarks.filter((place) => place.wonderLists?.includes('new-seven')).map((place) => place.slug).sort()
   assert.deepEqual(newSeven, [
     'chichen-itza',
@@ -101,7 +103,15 @@ test('wonder tags cover the New Seven and identify the current ancient-wonder ga
   ])
   assert.deepEqual(
     landmarks.filter((place) => place.wonderLists?.includes('ancient-seven')).map((place) => place.slug),
-    ['pyramids']
+    [
+      'pyramids',
+      'hanging-gardens-of-babylon',
+      'statue-of-zeus',
+      'temple-of-artemis',
+      'mausoleum-at-halicarnassus',
+      'colossus-of-rhodes',
+      'lighthouse-of-alexandria',
+    ]
   )
   assert.ok(natureSites.filter((place) => place.wonderLists?.includes('natural-highlights')).length > 0)
 })

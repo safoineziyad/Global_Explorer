@@ -5,7 +5,9 @@ import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    // Capacitor's `android/` holds a copy of the built bundle plus the Gradle
+    // template; there is no author-owned JS/TS in there to lint.
+    ignores: ['dist/**', 'node_modules/**', 'android/**'],
   },
   {
     linterOptions: {

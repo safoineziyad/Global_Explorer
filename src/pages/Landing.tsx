@@ -5,6 +5,8 @@ import { landmarks } from '../data/landmarks'
 import { natureSites } from '../data/nature'
 import { loadBundledCountries } from '../services/restCountries'
 import { useFeaturesT } from '../i18n/features'
+import { useI18n } from '../i18n'
+import { landmarkCopy, natureCopy } from '../i18n/content'
 
 const FEATURED = [
   { title: 'site.countries', text: 'site.countryDescription', to: '/directory', icon: '🌐' },
@@ -14,6 +16,7 @@ const FEATURED = [
 
 export default function Landing() {
   const t = useFeaturesT()
+  const { locale } = useI18n()
   const [query, setQuery] = useState('')
   const [countries, setCountries] = useState<CountryRecord[]>([])
   const [countryLoadFailed, setCountryLoadFailed] = useState(false)
@@ -36,14 +39,20 @@ export default function Landing() {
         [item.name.common, item.name.official, item.cca3, ...(item.capital ?? [])]
           .some((value) => value?.toLocaleLowerCase().includes(term))
       ).map((item) => ({ name: item.name.common, type: 'Country', to: `/country/${item.cca3}` })),
-      ...landmarks
-        .filter((item) => item.name.toLocaleLowerCase().includes(term))
-        .map((item) => ({ name: item.name, type: 'Landmark', to: `/landmark/${item.slug}` })),
-      ...natureSites
-        .filter((item) => item.name.toLocaleLowerCase().includes(term))
-        .map((item) => ({ name: item.name, type: 'Nature', to: `/nature/${item.slug}` })),
+      ...landmarks.flatMap((item) => {
+        const copy = landmarkCopy(locale, item.slug)
+        return copy?.name.toLocaleLowerCase().includes(term)
+          ? [{ name: copy.name, type: 'Landmark', to: `/landmark/${item.slug}` }]
+          : []
+      }),
+      ...natureSites.flatMap((item) => {
+        const copy = natureCopy(locale, item.slug)
+        return copy?.name.toLocaleLowerCase().includes(term)
+          ? [{ name: copy.name, type: 'Nature', to: `/nature/${item.slug}` }]
+          : []
+      }),
     ].slice(0, 6)
-  }, [countries, query])
+  }, [countries, locale, query])
 
   return (
     <main className="landing-page">
@@ -71,10 +80,10 @@ export default function Landing() {
               <li key={item.to}>
                 <Link to={item.to}><span>{item.name}</span><small>{t(item.type === 'Country' ? 'site.searchCountry' : item.type === 'Landmark' ? 'site.searchLandmark' : 'site.searchNature')}</small></Link>
               </li>
-            )) : <li className="empty-result">No matching featured places. Try another search.</li>}
+            )) : <li className="empty-result">{t('site.noMatches')}</li>}
           </ul>
         ) : null}
-        {countryLoadFailed ? <p role="status">Country suggestions are temporarily unavailable.</p> : null}
+        {countryLoadFailed ? <p role="status">{t('site.countrySuggestionUnavailable')}</p> : null}
       </section>
 
       <section className="browse-section" aria-labelledby="browse-title">

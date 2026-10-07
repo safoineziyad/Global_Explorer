@@ -16,3 +16,11 @@
 # The HTML shell must revalidate so a new deploy is picked up immediately.
 /index.html
   Cache-Control: no-cache
+
+# The service worker and web manifest must never be cached, otherwise clients
+# stay pinned to a dead worker and stale install metadata.
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/site.webmanifest
+  Cache-Control: no-cache, no-store, must-revalidate

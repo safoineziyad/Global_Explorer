@@ -164,12 +164,12 @@ export default function Country() {
 
         {apiError ? (
           <div className="catalog-note" role="status">
-            <p>{isRemoteCountryApiConfigured()
-              ? 'Live country details could not be refreshed; saved data is shown.'
-              : 'Live country details are not configured; bundled data is shown.'}</p>
+            <p>{featureT(isRemoteCountryApiConfigured()
+              ? 'country.liveFailure'
+              : 'country.liveDisabled')}</p>
             {isRemoteCountryApiConfigured() ? (
               <button type="button" onClick={() => void retryCountry()} disabled={retrying}>
-                {retrying ? 'Retrying…' : 'Retry live data'}
+                {retrying ? featureT('country.retrying') : featureT('country.retryLive')}
               </button>
             ) : null}
           </div>
@@ -220,22 +220,33 @@ export default function Country() {
         ) : null}
 
         <dl style={{ marginTop: '1.5rem' }}>
-          {capital.length > 0 ? <InfoRow label={t('country.capital')} value={formatList(capital)} /> : null}
-          {country.population !== undefined ? (
-            <InfoRow label={t('country.population')} value={formatNumber(country.population)} />
-          ) : null}
-          {country.area !== undefined ? (
-            <InfoRow label={t('country.area')} value={formatArea(country.area)} />
-          ) : null}
+          <InfoRow
+            label={t('country.capital')}
+            value={capital.length > 0 ? formatList(capital) : featureT('country.valueUnavailable')}
+          />
+          <InfoRow
+            label={t('country.population')}
+            value={country.population !== undefined
+              ? formatNumber(country.population)
+              : featureT('country.valueUnavailable')}
+          />
+          <InfoRow
+            label={t('country.area')}
+            value={country.area !== undefined
+              ? formatArea(country.area)
+              : featureT('country.valueUnavailable')}
+          />
           {density !== null ? (
             <InfoRow label={t('country.density')} value={`${formatNumber(Math.round(density))} / km²`} />
           ) : null}
-          {languages.length > 0 ? (
-            <InfoRow label={t('country.languages')} value={formatList(languages)} />
-          ) : null}
-          {currencies.length > 0 ? (
-            <InfoRow label={t('country.currencies')} value={formatList(currencies)} />
-          ) : null}
+          <InfoRow
+            label={t('country.languages')}
+            value={languages.length > 0 ? formatList(languages) : featureT('country.valueUnavailable')}
+          />
+          <InfoRow
+            label={t('country.currencies')}
+            value={currencies.length > 0 ? formatList(currencies) : featureT('country.valueUnavailable')}
+          />
           <InfoRow
             label={t('country.timezones')}
             value={country.timezones?.length

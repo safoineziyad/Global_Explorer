@@ -37,6 +37,16 @@
   <FilesMatch "\.(js|mjs|css|woff2?|ttf|otf|eot|png|jpe?g|gif|svg|webp|avif|ico)$">
     Header always set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
+
+  # The service worker and web manifest must never be served from cache, or
+  # clients get pinned to a dead worker and stale install metadata. These rules
+  # come after the FilesMatch block so they override it (sw.js matches it).
+  <Files "sw.js">
+    Header always set Cache-Control "no-cache, no-store, must-revalidate"
+  </Files>
+  <Files "site.webmanifest">
+    Header always set Cache-Control "no-cache, no-store, must-revalidate"
+  </Files>
 </IfModule>
 
 # --- Compression -----------------------------------------------------------

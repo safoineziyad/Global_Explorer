@@ -1,7 +1,17 @@
 // Additive "Explorer" feature data.
 //
-// All content here is clearly marked placeholder/mock data, structured so a
-// real API can replace the generators later without touching the UI.
+// Provenance rule for this module: "nearby discoveries" are real records looked
+// up by distance in the curated landmark and nature datasets, never generated.
+// Categories without a dataset are surfaced as unavailable rather than filled
+// with invented names, coordinates or stories.
+
+// NOTE: the explicit `.ts` extensions are required, not decorative. The audit
+// tests load this module directly through Node's native type stripping, and
+// Node's ESM resolver will not guess an extension for a bare specifier.
+// `allowImportingTsExtensions` in tsconfig.json makes this legal for type
+// checking, and Vite resolves it the same way.
+import { landmarks } from './landmarks.ts'
+import { natureSites } from './nature.ts'
 
 export type DiscoveryCategory =
   | 'nature'
@@ -69,13 +79,25 @@ export function radiusForMode(mode: ExplorerModeId): number {
 
 export type Discovery = {
   id: string
+  /** Slug of the underlying curated record. */
+  slug: string
+  kind: PlaceKind
+  /** English reference name; `nameKey` resolves the localized version. */
   name: string
+  nameKey: string
   category: DiscoveryCategory
   lat: number
   lng: number
+  country: string
   /** Straight-line distance from the anchor, in metres. */
   distanceM: number
+  /** Real, cited description from the source dataset — never generated. */
   story: string
+  storyKey: string
+  /** How many citations back this record. */
+  sourceCount: number
+  /** In-app route for the full record. */
+  href: string
 }
 
 export type GeoAnchor = { lat: number; lng: number }
@@ -99,109 +121,176 @@ export function haversineKm(a: GeoAnchor, b: GeoAnchor): number {
 }
 
 /* ------------------------------------------------------------------ */
-/* Deterministic mock generator                                        */
+/* Verified places: the only source of "nearby discoveries"             */
+/* ------------------------------------------------------------------ */
+/*                                                                          */
+/* Earlier versions of this file generated plausible-looking place names,   */
+/* coordinates and "local legends" from a seeded PRNG and presented them as  */
+/* real findings. Nothing in that output was true, so none of it remains.    */
+/*                                                                          */
+/* Discoveries are now looked up by real distance in the curated landmark    */
+/* and nature datasets (both of which carry citations). Where a category has */
+/* no dataset behind it, the UI says so instead of showing invented results. */
 /* ------------------------------------------------------------------ */
 
-function hash32(value: string): number {
-  let h = 2166136261
-  for (let i = 0; i < value.length; i++) {
-    h ^= value.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return h >>> 0
-}
+export type PlaceKind = 'landmark' | 'nature'
 
-function mulberry(seed: number): () => number {
-  let a = seed >>> 0
-  return () => {
-    a |= 0
-    a = (a + 0x6d2b79f5) | 0
-    let t = Math.imul(a ^ (a >>> 15), 1 | a)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-const NAME_POOLS: Record<DiscoveryCategory, string[]> = {
-  nature: ['Cedar Grove', 'Blue Spring', 'Granite Ridge', 'Willow Marsh', 'Sunset Bluff', 'Old Oak Park'],
-  history: ['Old Watchtower', 'Merchants’ Quarter', 'Ancient Rampart', 'Fountain Square', 'Old Mill', 'Caravan Gate'],
-  culture: ['Artisan Alley', 'Storytellers’ Hall', 'Handicraft Souk', 'Music Courtyard', 'Mural Wall', 'Puppet Theatre'],
-  food: ['Spice Market', 'Bread Oven', 'Mint Tea House', 'Harbour Grill', 'Saffron Kitchen', 'Night Market'],
-  discoveries: ['Forgotten Observatory', 'Hidden Cistern', 'Star Chart Room', 'Sunken Garden', 'First Well', 'Secret Library'],
-  architecture: ['Tiled Mosque', 'Arch Bridge', 'Wind Towers', 'Carved Portal', 'Ramparts Gate', 'Court of Arches'],
-}
-
-const STORY_POOLS: Record<DiscoveryCategory, string[]> = {
-  nature: [
-    'A quiet green refuge said to be older than the city walls.',
-    'Locals claim the water here never freezes.',
-  ],
-  history: [
-    'A trade stop where caravans once exchanged news as well as goods.',
-    'The site of an old watch post guarding the road.',
-  ],
-  culture: [
-    'Generations of craftspeople have worked at this spot.',
-    'A meeting place for music and storytelling.',
-  ],
-  food: [
-    'A recipe here is said to be centuries old.',
-    'Travellers once planned their journeys around this kitchen.',
-  ],
-  discoveries: [
-    'A find that quietly changed how people read the sky.',
-    'Records here hint at a much older settlement.',
-  ],
-  architecture: [
-    'A style that spread far beyond this region.',
-    'Built with techniques passed down over generations.',
-  ],
+export type VerifiedPlace = {
+  /** Stable id, also used as the MiniMap point key. */
+  id: string
+  slug: string
+  kind: PlaceKind
+  /** English reference name; `nameKey` is the localized version. */
+  name: string
+  nameKey: string
+  category: DiscoveryCategory
+  lat: number
+  lng: number
+  country: string
+  /** English reference description; `summaryKey` is the localized version. */
+  summary: string
+  summaryKey: string
+  /** How many citations back this record. */
+  sourceCount: number
+  /** In-app route for the full record. */
+  href: string
 }
 
 /**
- * Deterministically derives mock discoveries around an anchor. The same anchor
- * and radius always produce the same list, so results are stable while a real
- * data source is unavailable.
+ * Category assignment for landmarks. Nature records map to `nature`
+ * automatically; everything else is a built structure. The Ancient Wonders go
+ * under `history` because that is what they are, not because a generator put
+ * them there.
+ */
+const LANDMARK_CATEGORY: Record<string, DiscoveryCategory> = {
+  everest: 'nature',
+  pyramids: 'history',
+  'hanging-gardens-of-babylon': 'history',
+  'statue-of-zeus': 'history',
+  'temple-of-artemis': 'history',
+  'mausoleum-at-halicarnassus': 'history',
+  'colossus-of-rhodes': 'history',
+  'lighthouse-of-alexandria': 'history',
+}
+
+function categoryForLandmark(slug: string, built: string): DiscoveryCategory {
+  const explicit = LANDMARK_CATEGORY[slug]
+  if (explicit) return explicit
+  if (built === 'Natural formation') return 'nature'
+  return 'architecture'
+}
+
+/**
+ * Every landmark and nature record, flattened into one proximity-searchable
+ * index. Built once at module load; the datasets are small and static.
+ */
+export const VERIFIED_PLACES: VerifiedPlace[] = [
+  ...landmarks.map((record) => {
+    const category = categoryForLandmark(record.slug, record.built)
+    return {
+      id: `landmark:${record.slug}`,
+      slug: record.slug,
+      kind: 'landmark' as const,
+      name: record.name,
+      nameKey: `content.landmark.${record.slug}.name`,
+      category,
+      lat: record.location.lat,
+      lng: record.location.lng,
+      country: record.country,
+      summary: record.description,
+      summaryKey: `content.landmark.${record.slug}.description`,
+      sourceCount: record.sources?.length ?? 0,
+      href: `/landmark/${record.slug}`,
+    }
+  }),
+  ...natureSites.map((record) => ({
+    id: `nature:${record.slug}`,
+    slug: record.slug,
+    kind: 'nature' as const,
+    name: record.name,
+    nameKey: `content.nature.${record.slug}.name`,
+    category: 'nature' as DiscoveryCategory,
+    lat: record.location.lat,
+    lng: record.location.lng,
+    country: record.country,
+    summary: record.description,
+    summaryKey: `content.nature.${record.slug}.description`,
+    sourceCount: record.sources?.length ?? 0,
+    href: `/nature/${record.slug}`,
+  })),
+]
+
+/**
+ * Categories we have a real dataset for. The rest render as "no data"
+ * rather than being silently filled with invented results.
+ */
+export const CATEGORIES_WITH_DATA: DiscoveryCategory[] = [
+  ...new Set(VERIFIED_PLACES.map((place) => place.category)),
+]
+
+/** True when this category can return verified records. */
+export function categoryHasData(category: DiscoveryCategory): boolean {
+  return CATEGORIES_WITH_DATA.includes(category)
+}
+
+/**
+ * Finds real, cited records within `radiusKm` of `anchor`, nearest first.
+ *
+ * Returns an empty array when nothing in the curated dataset is in range —
+ * which is the common case, because the dataset is a small curated set of
+ * landmarks and natural sites rather than a complete local gazetteer. Callers
+ * must render that as an explicit "no verified places in range" state.
  */
 export function generateNearby(
   anchor: GeoAnchor,
   radiusKm: number,
   enabled?: Partial<Record<DiscoveryCategory, boolean>>
 ): Discovery[] {
+  if (!Number.isFinite(anchor?.lat) || !Number.isFinite(anchor?.lng)) return []
+  const radius = Number.isFinite(radiusKm) ? Math.max(0, radiusKm) : 0
   const out: Discovery[] = []
-  for (const category of CATEGORIES) {
-    if (enabled && enabled[category.id] === false) continue
-    const rng = mulberry(hash32(`${anchor.lat.toFixed(3)}:${anchor.lng.toFixed(3)}:${category.id}`))
-    const count = 2 + Math.floor(rng() * 3)
-    for (let i = 0; i < count; i++) {
-      const meters = Math.sqrt(rng()) * Math.max(0, radiusKm) * 1000
-      const bearing = rng() * Math.PI * 2
-      const dLat = (meters / 1000 / 111.32) * Math.cos(bearing)
-      const dLng = (meters / 1000 / (111.32 * Math.max(0.2, Math.cos(toRadians(anchor.lat))))) * Math.sin(bearing)
-      const names = NAME_POOLS[category.id]
-      const stories = STORY_POOLS[category.id]
-      out.push({
-        id: `${category.id}-${anchor.lat.toFixed(3)}-${anchor.lng.toFixed(3)}-${i}`,
-        name: names[(hash32(`${anchor.lat}-${anchor.lng}-${category.id}-${i}`) % names.length + names.length) % names.length],
-        category: category.id,
-        lat: anchor.lat + dLat,
-        lng: anchor.lng + dLng,
-        distanceM: Math.round(meters),
-        story: stories[i % stories.length],
-      })
-    }
+
+  for (const place of VERIFIED_PLACES) {
+    if (enabled && enabled[place.category] === false) continue
+    const distanceKm = haversineKm(anchor, place)
+    if (distanceKm > radius) continue
+    out.push({
+      id: place.id,
+      slug: place.slug,
+      kind: place.kind,
+      name: place.name,
+      nameKey: place.nameKey,
+      category: place.category,
+      lat: place.lat,
+      lng: place.lng,
+      country: place.country,
+      distanceM: Math.round(distanceKm * 1000),
+      story: place.summary,
+      storyKey: place.summaryKey,
+      sourceCount: place.sourceCount,
+      href: place.href,
+    })
   }
+
   return out.sort((a, b) => a.distanceM - b.distanceM)
 }
 
-/** Counts the "within 1 km" numbers requested for the My Location panel. */
-export function countsWithin(discoveries: Discovery[], meters = 1000): Record<string, number> {
-  const counts: Record<string, number> = { landmarks: 0, events: 0, dishes: 0, nature: 0 }
+/**
+ * Counts verified records within `meters` for the My Location counters.
+ *
+ * Only counts categories we actually have data for. `dishes` has no dataset at
+ * all, so it is reported as `null` rather than a misleading `0` — the UI shows
+ * "no data" instead of "zero dishes nearby".
+ */
+export function countsWithin(
+  discoveries: Discovery[],
+  meters = 1000
+): { landmarks: number; events: number; nature: number; dishes: null } {
+  const counts = { landmarks: 0, events: 0, nature: 0, dishes: null as null }
   for (const d of discoveries) {
     if (d.distanceM > meters) continue
     if (d.category === 'architecture' || d.category === 'culture') counts.landmarks++
     else if (d.category === 'history') counts.events++
-    else if (d.category === 'food') counts.dishes++
     else if (d.category === 'nature') counts.nature++
   }
   return counts

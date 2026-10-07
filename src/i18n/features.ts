@@ -5,6 +5,7 @@
 // scripts/check-i18n.mjs, so new feature strings must not change their shape.
 import { useCallback } from 'react'
 import { useI18n, type Locale } from './index'
+import { resolveContentKey } from './content'
 
 export type FeatureDict = Record<string, string>
 export type FeatureParams = Record<string, string | number>
@@ -20,9 +21,58 @@ const en: FeatureDict = {
   'site.skip': 'Skip to main content',
   'site.newSeven': 'New Seven Wonders',
   'site.ancientWonders': 'Ancient Wonders',
-  'site.naturalHighlights': 'Natural Wonders (highlights)',
+  'site.naturalHighlights': 'Natural Wonders (curated highlights)',
+
+  /* Wonder-list scope caveats. Referenced by WONDER_LIST_META in
+     src/data/landmarks.ts so a curated selection is never presented as a
+     complete or official canon. */
+  'wonder.note.newSeven':
+    'The official New7Wonders list — all seven entries, chosen by a public poll in 2007.',
+  'wonder.note.ancientSeven':
+    'The Seven Wonders of the Ancient World, as attributed to the poet Antipater of Sidon. Only the Pyramids of Giza still stand; the other six are known from ancient written accounts and no longer survive.',
+  'wonder.note.naturalHighlights':
+    'A curated selection of notable natural sites — not an official or complete list. Some entries sit on published wonder registers and some do not.',
+
+  /* Record-level labels. */
+  'record.built': 'Built',
+  'record.height': 'Height',
+  'record.period': 'Period',
+  'record.bestTime': 'Best time to visit',
+  'record.type': 'Type',
+  'record.area': 'Area',
+  'record.established': 'Protection',
+  'record.climate': 'Climate',
+  'record.wildlife': 'Wildlife',
+  'record.activities': 'Things to do',
+  'record.facts': 'Key facts',
+  'record.unesco': 'UNESCO World Heritage Site',
+  'record.notUnesco': 'Not a UNESCO World Heritage Site',
+  'record.statusExtant': 'Still standing',
+  'record.statusLost': 'No longer survives',
+  'record.sources': 'Sources',
+  'record.sourcesChecked': 'Checked',
+  'record.confidenceVerified': 'Verified',
+  'record.confidenceAttested': 'Attested in historical sources',
+  'record.confidenceDisputed': 'Disputed',
+  'record.officialWonderList': 'On an official natural-wonders register',
+  'record.curatedWonder': 'Curated highlight, not an official list',
+
+  /* Honest states for the verified-places proximity search. */
+  'nearby.verifiedOnly':
+    'Verified places only — results come from our curated landmark and natural-site records, each with cited sources.',
+  'nearby.emptyTitle': 'No verified places in range',
+  'nearby.emptyBody':
+    'Our dataset is a small curated set of {total} landmarks and natural sites worldwide, not a complete local gazetteer. Nothing in it falls within {km} km of this point.',
+  'nearby.categoryNoData': 'No dataset for this category',
+  'nearby.categoryNoDataBody':
+    'We have no verified source for {category} places, so this category is shown as unavailable rather than filled with generated examples.',
+  'nearby.counterNoData': 'No data',
+  'nearby.viewRecord': 'View record',
+  'nearby.sourceCount': '{count} sources',
   'site.wonderFilter': 'Wonder list',
-  'site.ancientCoverage': 'Current coverage: Giza only (1 of 7); the other six ancient wonders still need content.',
+  'site.ancientCoverage': 'All seven traditional entries are included. Giza still stands; six are lost, and the Hanging Gardens’ existence and location are disputed.',
+  'site.noMatches': 'No matching featured places. Try another search.',
+  'site.countrySuggestionUnavailable': 'Country suggestions are temporarily unavailable.',
   'site.welcomeEyebrow': 'A world of places to explore',
   'site.welcomeTitle': 'See the world from a new perspective.',
   'site.welcomeIntro': 'Explore countries, landmarks, natural wonders and the stories that connect them.',
@@ -77,15 +127,21 @@ const en: FeatureDict = {
   'explorer.nav.discover': 'Discover',
   'explorer.nav.routes': 'Routes',
   'explorer.nav.nearMe': 'Near Me',
-  'explorer.nav.ai': 'Demo',
+  'explorer.nav.ai': 'Nearby',
   'explorer.nav.timeTravel': 'Time Travel',
-  'explorer.mockNote': 'DEMO / SIMULATED DATA — nearby places and stories are generated examples, not verified local listings.',
+  'explorer.mockNote': 'DEMO / ILLUSTRATIVE HISTORICAL CONTENT — Time Travel narratives are simplified examples, not sourced historical reconstructions.',
+  'explorer.dataNote': 'Data status is shown in each panel. Nearby results use cited curated records; demo panels are clearly labeled.',
 
   'myLocation.title': 'You Are Here',
   'myLocation.subtitle': 'Discover what is around your current location.',
   'myLocation.useLocation': 'Use my location',
   'myLocation.disclosure': 'Your browser will ask permission. Coordinates stay in this session and are not saved or sent by this app.',
   'country.timezoneUnavailable': 'Time-zone data is not included for this place.',
+  'country.valueUnavailable': 'Not available in the bundled data',
+  'country.liveFailure': 'Live country details could not be refreshed; saved data is shown.',
+  'country.liveDisabled': 'Live country details are not configured; bundled data is shown.',
+  'country.retryLive': 'Retry live data',
+  'country.retrying': 'Retrying…',
   'myLocation.locating': 'Locating…',
   'myLocation.granted': 'Location found',
   'myLocation.denied': 'Location unavailable — using a default spot.',
@@ -97,6 +153,8 @@ const en: FeatureDict = {
   'myLocation.count.dishes': 'Local dishes',
   'myLocation.count.nature': 'Natural places',
   'myLocation.keepDot': 'Your blue location dot stays visible.',
+  'myLocation.counterNote':
+    'These counts come from our small curated set of verified landmarks and natural sites only, so a low number means ‘not in our dataset’, not ‘nothing exists there’.',
 
   'exploreAround.title': 'Explore Around Me',
   'exploreAround.subtitle': 'Toggle category layers. Results update as you move.',
@@ -130,9 +188,8 @@ const en: FeatureDict = {
   'geoDiscovery.question2': 'How did it change the world?',
   'geoDiscovery.chain': 'Chain of impact',
 
-  'ai.title': 'Demo suggestions',
-  'ai.button': "I'm here. Surprise me.",
-  'ai.again': 'Surprise me again',
+  'ai.title': 'Verified places nearby',
+  'ai.again': 'Show another verified place',
   'ai.hidden': 'Hidden Discovery',
   'ai.distance': '{m} meters away, there is a place you may not know the story of…',
   'ai.explore': 'Explore',
@@ -181,8 +238,52 @@ const fr: FeatureDict = {
   'site.newSeven': 'Nouvelles Sept Merveilles',
   'site.ancientWonders': 'Merveilles antiques',
   'site.naturalHighlights': 'Merveilles naturelles (sélection)',
+
+  'wonder.note.newSeven':
+    'Liste officielle New7Wonders — les sept entrées, choisies par un vote public en 2007.',
+  'wonder.note.ancientSeven':
+    'Les Sept Merveilles du monde antique, telles qu’attribuées au poète Antipatros de Sidon. Seules les pyramides de Gizeh subsistent ; les six autres ne sont connues que par des textes antiques et n’existent plus.',
+  'wonder.note.naturalHighlights':
+    'Une sélection de sites naturels notables — ni liste officielle ni liste exhaustive. Certains figurent sur des registres de merveilles publiés, d’autres non.',
+
+  'record.built': 'Construction',
+  'record.height': 'Hauteur',
+  'record.period': 'Période',
+  'record.bestTime': 'Meilleure période de visite',
+  'record.type': 'Type',
+  'record.area': 'Superficie',
+  'record.established': 'Protection',
+  'record.climate': 'Climat',
+  'record.wildlife': 'Faune',
+  'record.activities': 'Activités',
+  'record.facts': 'Faits marquants',
+  'record.unesco': 'Site du patrimoine mondial de l’UNESCO',
+  'record.notUnesco': 'N’est pas un site du patrimoine mondial de l’UNESCO',
+  'record.statusExtant': 'Toujours debout',
+  'record.statusLost': 'N’existe plus',
+  'record.sources': 'Sources',
+  'record.sourcesChecked': 'Vérifié le',
+  'record.confidenceVerified': 'Vérifié',
+  'record.confidenceAttested': 'Attesté par des sources historiques',
+  'record.confidenceDisputed': 'Contesté',
+  'record.officialWonderList': 'Inscrit sur un registre officiel des merveilles naturelles',
+  'record.curatedWonder': 'Sélection, et non une liste officielle',
+
+  'nearby.verifiedOnly':
+    'Uniquement des lieux vérifiés — les résultats proviennent de nos fiches de monuments et de sites naturels, chacune avec ses sources.',
+  'nearby.emptyTitle': 'Aucun lieu vérifié dans ce rayon',
+  'nearby.emptyBody':
+    'Notre base de données est un ensemble restreint de {total} monuments et sites naturels dans le monde, et non un répertoire local exhaustif. Rien n’y se trouve dans un rayon de {km} km de ce point.',
+  'nearby.categoryNoData': 'Aucune donnée pour cette catégorie',
+  'nearby.categoryNoDataBody':
+    'Nous n’avons pas de source vérifiée pour les lieux de catégorie {category} ; cette catégorie est donc indiquée comme indisponible plutôt que remplie d’exemples générés.',
+  'nearby.counterNoData': 'Sans données',
+  'nearby.viewRecord': 'Voir la fiche',
+  'nearby.sourceCount': '{count} sources',
   'site.wonderFilter': 'Liste des merveilles',
-  'site.ancientCoverage': 'Couverture actuelle : Gizeh seulement (1 sur 7) ; les six autres merveilles antiques restent à documenter.',
+  'site.ancientCoverage': 'Les sept entrées traditionnelles sont incluses. Gizeh subsiste ; six merveilles ont disparu, et l’existence ainsi que l’emplacement des jardins suspendus sont contestés.',
+  'site.noMatches': 'Aucun lieu correspondant. Essayez une autre recherche.',
+  'site.countrySuggestionUnavailable': 'Les suggestions de pays sont temporairement indisponibles.',
   'site.welcomeEyebrow': 'Un monde de lieux à explorer',
   'site.welcomeTitle': 'Découvrez le monde sous un nouvel angle.',
   'site.welcomeIntro': 'Explorez les pays, les monuments, les merveilles naturelles et les récits qui les relient.',
@@ -237,15 +338,21 @@ const fr: FeatureDict = {
   'explorer.nav.discover': 'Découvrir',
   'explorer.nav.routes': 'Itinéraires',
   'explorer.nav.nearMe': 'Près de moi',
-  'explorer.nav.ai': 'Démo',
+  'explorer.nav.ai': 'À proximité',
   'explorer.nav.timeTravel': 'Voyage dans le temps',
-  'explorer.mockNote': 'DÉMO / DONNÉES SIMULÉES — les lieux et récits proches sont générés et ne sont pas vérifiés.',
+  'explorer.mockNote': 'CONTENU HISTORIQUE ILLUSTRATIF / DÉMO — les récits de voyage dans le temps sont simplifiés et ne constituent pas des reconstructions historiques sourcées.',
+  'explorer.dataNote': 'Le statut des données est indiqué dans chaque panneau. Les lieux proches viennent de fiches sourcées ; les démos sont signalées.',
 
   'myLocation.title': 'Vous êtes ici',
   'myLocation.subtitle': 'Découvrez ce qui vous entoure.',
   'myLocation.useLocation': 'Utiliser ma position',
   'myLocation.disclosure': "Votre navigateur demandera l'autorisation. Les coordonnées restent dans cette session et ne sont ni enregistrées ni envoyées par cette application.",
   'country.timezoneUnavailable': 'Les fuseaux horaires ne sont pas renseignés pour ce lieu.',
+  'country.valueUnavailable': 'Non renseigné dans les données locales',
+  'country.liveFailure': 'Impossible d’actualiser les données en ligne ; les données enregistrées sont affichées.',
+  'country.liveDisabled': 'Les données en ligne ne sont pas configurées ; les données locales sont affichées.',
+  'country.retryLive': 'Réessayer les données en ligne',
+  'country.retrying': 'Nouvel essai…',
   'myLocation.locating': 'Localisation…',
   'myLocation.granted': 'Position trouvée',
   'myLocation.denied': 'Position indisponible — lieu par défaut utilisé.',
@@ -257,6 +364,8 @@ const fr: FeatureDict = {
   'myLocation.count.dishes': 'Plats locaux',
   'myLocation.count.nature': 'Sites naturels',
   'myLocation.keepDot': 'Votre point bleu de position reste visible.',
+  'myLocation.counterNote':
+    'Ces chiffres proviennent uniquement de notre petit ensemble de monuments et sites naturels vérifiés : un chiffre bas signifie « absent de notre base », et non « rien n’existe là-bas ».',
 
   'exploreAround.title': 'Explorer autour de moi',
   'exploreAround.subtitle': 'Activez les couches. Les résultats se mettent à jour.',
@@ -290,9 +399,8 @@ const fr: FeatureDict = {
   'geoDiscovery.question2': 'Comment cela a-t-il changé le monde ?',
   'geoDiscovery.chain': 'Chaîne d’impact',
 
-  'ai.title': 'Suggestions de démonstration',
-  'ai.button': 'Je suis ici. Surprenez-moi.',
-  'ai.again': 'Encore une surprise',
+  'ai.title': 'Lieux vérifiés à proximité',
+  'ai.again': 'Afficher un autre lieu vérifié',
   'ai.hidden': 'Découverte cachée',
   'ai.distance': 'À {m} mètres, il y a un lieu dont vous ne connaissez peut-être pas l’histoire…',
   'ai.explore': 'Explorer',
@@ -340,9 +448,53 @@ const ar: FeatureDict = {
   'site.skip': 'تخطَّ إلى المحتوى الرئيسي',
   'site.newSeven': 'عجائب الدنيا السبع الجديدة',
   'site.ancientWonders': 'عجائب العالم القديم',
-  'site.naturalHighlights': 'عجائب طبيعية (مختارات)',
+  'site.naturalHighlights': 'عجائب طبيعية (مختارات منتقاة)',
+
+  'wonder.note.newSeven':
+    'قائمة نيو سيفن وورلدرز الرسمية — المداخل السبعة كلها، اختيرت بتصويت عام عام ٢٠٠٧.',
+  'wonder.note.ancientSeven':
+    'عجائب العالم القديم السبع، كما نُسبت إلى الشاعر أنتيباتر السيديوني. ولا تزال أهرامات الجيزة وحدها قائمة؛ أما الستة الأخرى فلا تُعرف إلا من نصوص قديمة ولم تعد باقية.',
+  'wonder.note.naturalHighlights':
+    'مجموعة منتقاة من المواقع الطبيعية الجديرة بالاهتمام — وليست قائمة رسمية أو exhaustive. بعض المداخل مسجّل في سجلات عجائب منشورة وبعضها ليس كذلك.',
+
+  'record.built': 'البناء',
+  'record.height': 'الارتفاع',
+  'record.period': 'الحقبة',
+  'record.bestTime': 'أفضل وقت للزيارة',
+  'record.type': 'النوع',
+  'record.area': 'المساحة',
+  'record.established': 'الحماية',
+  'record.climate': 'المناخ',
+  'record.wildlife': 'الحياة البرية',
+  'record.activities': 'أنشطة مقترحة',
+  'record.facts': 'حقائق أساسية',
+  'record.unesco': 'موقع من مواقع التراث العالمي لليونسكو',
+  'record.notUnesco': 'ليس موقعًا من مواقع التراث العالمي لليونسكو',
+  'record.statusExtant': 'ما زال قائمًا',
+  'record.statusLost': 'لم يعد موجودًا',
+  'record.sources': 'المصادر',
+  'record.sourcesChecked': 'تاريخ التحقق',
+  'record.confidenceVerified': 'مُتحقَّق منه',
+  'record.confidenceAttested': 'مشهود في مصادر تاريخية',
+  'record.confidenceDisputed': 'مقبض عليه',
+  'record.officialWonderList': 'مدرج في سجل رسمي للعجائب الطبيعية',
+  'record.curatedWonder': 'مختار، وليس في قائمة رسمية',
+
+  'nearby.verifiedOnly':
+    'أماكن موثّقة فقط — النتائج من بطاقاتنا للمعالم والطبيعة، وكل بطاقة مرفقة بمصادرها.',
+  'nearby.emptyTitle': 'لا توجد أماكن موثّقة ضمن هذا النطاق',
+  'nearby.emptyBody':
+    'قاعدتنا مجموعة منتقاة صغيرة تضم {total} معلمًا وموقعًا طبيعيًا حول العالم، وليست دليلًا محليًا شاملًا. لا يقع فيها شيء ضمن {km} كم من هذه النقطة.',
+  'nearby.categoryNoData': 'لا توجد بيانات لهذه الفئة',
+  'nearby.categoryNoDataBody':
+    'لا تتوفر لدينا مصدر موثوق لأماكن فئة {category}، لذلك نعرض هذه الفئة على أنها غير متاحة بدلًا من ملئها بأمثلة مُولَّدة.',
+  'nearby.counterNoData': 'لا توجد بيانات',
+  'nearby.viewRecord': 'عرض البطاقة',
+  'nearby.sourceCount': '{count} مصادر',
   'site.wonderFilter': 'قائمة العجائب',
-  'site.ancientCoverage': 'التغطية الحالية: الجيزة فقط (1 من 7)، وما تزال العجائب الست الأخرى بحاجة إلى محتوى.',
+  'site.ancientCoverage': 'تتضمن القائمة المداخل التقليدية السبعة. ما زالت الجيزة قائمة، وقد اندثرت ست عجائب؛ كما أن وجود الحدائق المعلّقة وموقعها موضع خلاف.',
+  'site.noMatches': 'لا توجد أماكن مطابقة. جرّب بحثًا آخر.',
+  'site.countrySuggestionUnavailable': 'اقتراحات الدول غير متاحة مؤقتًا.',
   'site.welcomeEyebrow': 'عالم من الأماكن لاستكشافها',
   'site.welcomeTitle': 'اكتشف العالم من منظور جديد.',
   'site.welcomeIntro': 'استكشف الدول والمعالم والعجائب الطبيعية والقصص التي تربط بينها.',
@@ -397,15 +549,21 @@ const ar: FeatureDict = {
   'explorer.nav.discover': 'اكتشف',
   'explorer.nav.routes': 'المسارات',
   'explorer.nav.nearMe': 'قريب مني',
-  'explorer.nav.ai': 'تجريبي',
+  'explorer.nav.ai': 'قريب منك',
   'explorer.nav.timeTravel': 'السفر عبر الزمن',
-  'explorer.mockNote': 'عرض تجريبي / بيانات مُحاكاة — الأماكن والقصص القريبة مولّدة وليست قوائم محلية موثقة.',
+  'explorer.mockNote': 'محتوى تاريخي توضيحي / تجريبي — سرديات السفر عبر الزمن أمثلة مبسطة وليست إعادة بناء تاريخية موثقة المصادر.',
+  'explorer.dataNote': 'تظهر حالة البيانات في كل لوحة. تعتمد النتائج القريبة على سجلات منتقاة ذات مصادر، وتُوسم اللوحات التجريبية بوضوح.',
 
   'myLocation.title': 'أنت هنا',
   'myLocation.subtitle': 'اكتشف ما يحيط بموقعك الحالي.',
   'myLocation.useLocation': 'استخدم موقعي',
   'myLocation.disclosure': 'سيطلب متصفحك الإذن. تبقى الإحداثيات في هذه الجلسة ولا يحفظها التطبيق أو يرسلها.',
   'country.timezoneUnavailable': 'بيانات المنطقة الزمنية غير متوفرة لهذا المكان.',
+  'country.valueUnavailable': 'غير متوفر في البيانات المحلية',
+  'country.liveFailure': 'تعذر تحديث بيانات الدولة المباشرة؛ يتم عرض البيانات المحفوظة.',
+  'country.liveDisabled': 'بيانات الدول المباشرة غير مهيأة؛ يتم عرض البيانات المحلية.',
+  'country.retryLive': 'إعادة محاولة البيانات المباشرة',
+  'country.retrying': 'جارٍ إعادة المحاولة…',
   'myLocation.locating': 'جارٍ تحديد الموقع…',
   'myLocation.granted': 'تم تحديد الموقع',
   'myLocation.denied': 'الموقع غير متاح — سيتم استخدام موقع افتراضي.',
@@ -417,6 +575,8 @@ const ar: FeatureDict = {
   'myLocation.count.dishes': 'الأطباق المحلية',
   'myLocation.count.nature': 'المعالم الطبيعية',
   'myLocation.keepDot': 'تبقى نقطة موقعك الزرقاء ظاهرة.',
+  'myLocation.counterNote':
+    'هذه الأعداد تأتي من مجموعتنا الصغيرة الموثّقة من المعالم والطبيعة فقط، لذا فإن الرقم المنخفض يعني «ليس ضمن بياناتنا»، وليس «لا شيء موجود هناك».',
 
   'exploreAround.title': 'استكشف حولي',
   'exploreAround.subtitle': 'فعّل طبقات الفئات. تتحدّث النتائج عند تحرّكك.',
@@ -450,9 +610,8 @@ const ar: FeatureDict = {
   'geoDiscovery.question2': 'كيف غيّر هذا العالم؟',
   'geoDiscovery.chain': 'سلسلة التأثير',
 
-  'ai.title': 'اقتراحات تجريبية',
-  'ai.button': 'أنا هنا. فاجئني.',
-  'ai.again': 'فاجئني مرة أخرى',
+  'ai.title': 'أماكن موثّقة قريبة منك',
+  'ai.again': 'اعرض مكانًا موثقًا آخر',
   'ai.hidden': 'اكتشاف خفي',
   'ai.distance': 'على بعد {m} مترًا، يوجد مكان قد لا تعرف قصته…',
   'ai.explore': 'استكشف',
@@ -492,12 +651,24 @@ const ar: FeatureDict = {
 
 const DICTS: Record<Locale, FeatureDict> = { en, fr, ar }
 
-/** Translate a new-feature key, falling back to English then the raw key. */
+/**
+ * Translate a new-feature key, falling back to English then the raw key.
+ *
+ * `content.*` keys are resolved against the localized landmark/nature copy in
+ * src/i18n/content.ts instead of this dictionary. Those keys have no English
+ * fallback here: if the locale is missing copy, `check-content` should already
+ * have failed the build, and at runtime we surface the key rather than
+ * silently showing English.
+ */
 function featureTranslate(
   locale: Locale,
   key: string,
   params?: FeatureParams
 ): string {
+  if (key.startsWith('content.')) {
+    const resolved = resolveContentKey(locale, key)
+    return resolved ?? key
+  }
   const template = DICTS[locale]?.[key] ?? en[key] ?? key
   if (!params) return template
   return template.replace(/\{(\w+)\}/g, (match, name: string) => {

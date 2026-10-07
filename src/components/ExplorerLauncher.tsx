@@ -42,16 +42,23 @@ export default function ExplorerLauncher() {
   const [hover, setHover] = useState(false)
   const launcherRef = useRef<HTMLButtonElement>(null)
   const dialogRef = useRef<HTMLElement>(null)
+  const dialogHasFocus = useRef(false)
 
   const selected: ExplorerPanelId = activePanel ?? 'location'
 
   useEffect(() => {
-    if (!activePanel) return
+    if (!activePanel) {
+      dialogHasFocus.current = false
+      return
+    }
     const panel = dialogRef.current
     const focusable = () => panel?.querySelectorAll<HTMLElement>(
       'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     ) ?? []
-    focusable()[0]?.focus()
+    if (!dialogHasFocus.current) {
+      focusable()[0]?.focus()
+      dialogHasFocus.current = true
+    }
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         closePanel()
@@ -222,6 +229,21 @@ export default function ExplorerLauncher() {
                   aria-controls="explorer-panel"
                   tabIndex={active ? 0 : -1}
                   onClick={() => openPanel(tab.id)}
+                  onKeyDown={(event) => {
+                    const currentIndex = TABS.findIndex((item) => item.id === tab.id)
+                    let nextIndex = currentIndex
+                    if (event.key === 'Home') nextIndex = 0
+                    else if (event.key === 'End') nextIndex = TABS.length - 1
+                    else if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+                      event.preventDefault()
+                      const direction = (event.key === 'ArrowRight' ? 1 : -1) * (locale === 'ar' ? -1 : 1)
+                      nextIndex = (currentIndex + direction + TABS.length) % TABS.length
+                    } else return
+                    event.preventDefault()
+                    const nextTab = dialogRef.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[nextIndex]
+                    nextTab?.focus()
+                    openPanel(TABS[nextIndex].id)
+                  }}
                   style={{
                     padding: '0.3rem 0.5rem',
                     borderRadius: 6,
@@ -254,7 +276,7 @@ export default function ExplorerLauncher() {
           </div>
 
           <p style={{ color: '#7288a5', fontSize: '0.68rem', marginTop: '0.8rem' }}>
-            {t('explorer.mockNote')}
+            {t('explorer.dataNote')}
           </p>
         </aside>
         </>

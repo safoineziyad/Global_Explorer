@@ -3,7 +3,7 @@
  * check-i18n.mjs
  *
  * Verifies that the English, French and Arabic locale files expose exactly
- * the same set of translation keys, and that each file has 220 keys.
+ * the same set of translation keys, and that each file has 222 keys.
  * Exits non-zero on the first mismatch.
  */
 import fs from 'fs';
@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 
-const EXPECTED_COUNT = 220;
+const EXPECTED_COUNT = 222;
 const LOCALES = ['en', 'fr', 'ar'];
 
 // Directories that might contain locale files, plus file name patterns.

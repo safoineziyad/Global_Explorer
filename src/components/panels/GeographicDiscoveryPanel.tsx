@@ -138,6 +138,10 @@ export default function GeographicDiscoveryPanel({ placeName }: { placeName?: st
           </ol>
         ) : null}
       </div>
+
+      <p style={{ color: '#7288a5', fontSize: '0.72rem', marginTop: '0.75rem' }}>
+        {t('explorer.mockNote')}
+      </p>
     </section>
   )
 }

@@ -10,11 +10,14 @@ import {
   isRemoteCountryApiConfigured,
 } from '../services/restCountries'
 import { useFeaturesT } from '../i18n/features'
+import { useI18n } from '../i18n'
+import { landmarkCopy, natureCopy } from '../i18n/content'
 
 type DirectoryKind = 'countries' | 'landmarks' | 'nature'
 
 export default function Directory({ kind }: { kind: DirectoryKind }) {
   const t = useFeaturesT()
+  const { locale } = useI18n()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('all')
   const [wonderFilter, setWonderFilter] = useState<'all' | WonderListId>('all')
@@ -55,23 +58,27 @@ export default function Directory({ kind }: { kind: DirectoryKind }) {
   const filters = kind === 'countries'
     ? [...new Set(countries.map((item) => item.region).filter((value): value is string => Boolean(value)))]
     : kind === 'landmarks'
-      ? [...new Set(landmarks.map((item) => item.type))]
-      : [...new Set(natureSites.map((item) => item.type))]
+      ? [...new Set(landmarks.map((item) => landmarkCopy(locale, item.slug)?.type).filter((value): value is string => Boolean(value)))]
+      : [...new Set(natureSites.map((item) => natureCopy(locale, item.slug)?.type).filter((value): value is string => Boolean(value)))]
   const countryResults = useMemo(() => countries.filter((item) => {
     const values = [item.name.common, item.name.official, item.cca3, ...(item.capital ?? [])]
     return (filter === 'all' || item.region === filter) &&
       values.some((value) => value?.toLocaleLowerCase().includes(needle))
   }), [countries, filter, needle])
-  const landmarkResults = useMemo(() => landmarks.filter((item) =>
-    (filter === 'all' || item.type === filter) &&
+  const landmarkResults = useMemo(() => landmarks.filter((item) => {
+    const copy = landmarkCopy(locale, item.slug)
+    return Boolean(copy) &&
+    (filter === 'all' || copy?.type === filter) &&
     (wonderFilter === 'all' || item.wonderLists?.includes(wonderFilter)) &&
-    [item.name, item.country, item.type].some((value) => value.toLocaleLowerCase().includes(needle))
-  ), [filter, needle, wonderFilter])
-  const natureResults = useMemo(() => natureSites.filter((item) =>
-    (filter === 'all' || item.type === filter) &&
+    [copy?.name, item.country, copy?.type].some((value) => value?.toLocaleLowerCase().includes(needle))
+  }), [filter, locale, needle, wonderFilter])
+  const natureResults = useMemo(() => natureSites.filter((item) => {
+    const copy = natureCopy(locale, item.slug)
+    return Boolean(copy) &&
+    (filter === 'all' || copy?.type === filter) &&
     (wonderFilter === 'all' || (wonderFilter === 'natural-highlights' && item.wonderLists?.includes('natural-highlights'))) &&
-    [item.name, item.country, item.type].some((value) => value.toLocaleLowerCase().includes(needle))
-  ), [filter, needle, wonderFilter])
+    [copy?.name, item.country, copy?.type].some((value) => value?.toLocaleLowerCase().includes(needle))
+  }), [filter, locale, needle, wonderFilter])
 
   return (
     <main className="catalog-page">
@@ -148,21 +155,29 @@ export default function Directory({ kind }: { kind: DirectoryKind }) {
             </div>
       ) : kind === 'landmarks' ? (
         <div className="catalog-grid">
-          {landmarkResults.map((item) => (
-            <Link className="catalog-card" key={item.slug} to={`/landmark/${item.slug}`}>
-              <span className="catalog-card-meta">{item.type}{item.unesco ? ' · UNESCO' : ''}</span>
-              <h2>{item.name}</h2><p>{item.period}</p>
-            </Link>
-          ))}
+          {landmarkResults.map((item) => {
+            const copy = landmarkCopy(locale, item.slug)
+            if (!copy) return null
+            return (
+              <Link className="catalog-card" key={item.slug} to={`/landmark/${item.slug}`}>
+                <span className="catalog-card-meta">{copy.type}{item.unesco ? ` · ${t('record.unesco')}` : ''}</span>
+                <h2>{copy.name}</h2><p>{copy.period}</p>
+              </Link>
+            )
+          })}
         </div>
       ) : (
         <div className="catalog-grid">
-          {natureResults.map((item) => (
-            <Link className="catalog-card" key={item.slug} to={`/nature/${item.slug}`}>
-              <span className="catalog-card-meta">{item.type}</span>
-              <h2>{item.name}</h2><p>{item.area ?? item.climate}</p>
-            </Link>
-          ))}
+          {natureResults.map((item) => {
+            const copy = natureCopy(locale, item.slug)
+            if (!copy) return null
+            return (
+              <Link className="catalog-card" key={item.slug} to={`/nature/${item.slug}`}>
+                <span className="catalog-card-meta">{copy.type}</span>
+                <h2>{copy.name}</h2><p>{copy.area ?? copy.climate}</p>
+              </Link>
+            )
+          })}
         </div>
       )}
       {kind === 'countries' && apiError ? (
